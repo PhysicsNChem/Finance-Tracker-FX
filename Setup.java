@@ -51,6 +51,10 @@ public class Setup extends JFrame implements ActionListener {
         panel.add(Box.createRigidArea(new Dimension(0, 10))); // Add spacing between buttons
         panel.add(button2);
 
+        //Add confirm button
+        JButton button3 = new JButton();
+        panel.add(button3);
+
         // Add panel to the frame
         add(panel);
 

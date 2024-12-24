@@ -10,6 +10,6 @@ public class GUI {
         frame.add(l1);
         frame.setSize(1280,720);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
+        frame.setVisible(false);
     }
 }

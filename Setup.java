@@ -20,5 +20,6 @@ public class Setup {
         frame1.setLocationRelativeTo(null);
         frame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame1.setVisible(true);
+        //hello
     }
 }

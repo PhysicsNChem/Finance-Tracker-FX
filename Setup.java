@@ -114,7 +114,11 @@ public class Setup extends JFrame implements ActionListener {
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         userPanel.add(label);
 
-        userPanel.add(Box.createVerticalStrut(383));
+        ImageIcon defaultIcon = new ImageIcon("resources/default-profile-picture.png-2731391301.png");
+        JLabel defaultLabel = new JLabel(defaultIcon);
+        userPanel.add(defaultLabel);
+
+        userPanel.add(Box.createVerticalStrut(20));
 
         JPanel buttonRow = new JPanel();
         buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));

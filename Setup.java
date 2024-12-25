@@ -81,6 +81,7 @@ public class Setup extends JFrame implements ActionListener {
 
         JLabel label2 = new JLabel("This can be changed later if you wish");
         label2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        themePanel.add(Box.createRigidArea(new Dimension(0, 350)));
         themePanel.add(label2);
         JButton backButton = new JButton("Back");
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -93,18 +94,19 @@ public class Setup extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == button3) { // Check for "Continue" button press
-            if (button1.isSelected() && !LanguageSelected) {
+        if (e.getSource() == button3 && !LanguageSelected) { // Check for "Continue" button press
+            if (button1.isSelected()) {
                 englishSelected = true;
                 LanguageSelected = true;
                 createSecondPanel();
-            } else if (button2.isSelected() && !LanguageSelected) {
+            } else if (button2.isSelected()) {
                 LanguageSelected = true;
                 createSecondPanel();
             } else {
                 JOptionPane.showMessageDialog(this, "Please choose an option / Veuillez choisir une option", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+
     }
 
     public static void main(String[] args) {

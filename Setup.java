@@ -59,7 +59,7 @@ public class Setup extends JFrame implements ActionListener {
         //Add confirm button
         button3 = new JButton("Continue");
         button3.setAlignmentX(Component.CENTER_ALIGNMENT);
-        RadioPanel.add(Box.createRigidArea(new Dimension(0, 350)));
+        RadioPanel.add(Box.createRigidArea(new Dimension(0, 340)));
         button3.addActionListener(this);
         RadioPanel.add(button3);
         // Add panel to the frame
@@ -84,15 +84,22 @@ public class Setup extends JFrame implements ActionListener {
         label2.setAlignmentX(Component.CENTER_ALIGNMENT);
         themePanel.add(Box.createRigidArea(new Dimension(0, 340)));
         themePanel.add(label2);
+
+        JPanel buttonRow = new JPanel();
+        buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonRow.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
         
         backButton = new JButton("Back");
-        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(this);
-        themePanel.add(Box.createRigidArea(new Dimension(0, 50)));
-        themePanel.add(backButton);
+        buttonRow.add(backButton);
+
+        button3 = new JButton("Continue");
+        button3.addActionListener(this);
+        buttonRow.add(button3);
+        themePanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        themePanel.add(buttonRow);
         getContentPane().add(themePanel);
-        revalidate();
-        repaint();
+        redraw();
     }
 
 
@@ -116,10 +123,21 @@ public class Setup extends JFrame implements ActionListener {
             englishSelected = false;
             getContentPane().removeAll();
             createFirstPanel();
-            revalidate();
-            repaint();
+            redraw();
+        }
+        if(e.getSource() == button3) {
+            LanguageSelected = false;
+            englishSelected = false;
+            getContentPane().removeAll();
+            createFirstPanel();
+            redraw();
+
         }
 
+    }
+    public void redraw(){
+        revalidate();
+        repaint();
     }
 
     public static void main(String[] args) {

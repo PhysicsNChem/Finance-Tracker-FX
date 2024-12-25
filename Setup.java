@@ -15,14 +15,16 @@ public class Setup extends JFrame implements ActionListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    } public void createFirstPanel() {
+
         // Set up JFrame
         setTitle("FBLA Project Setup");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setResizable(false);
         setLocationRelativeTo(null); // Centre the window
+    }
 
+    public void createFirstPanel() {
         // Create a JPanel with vertical BoxLayout
         JPanel RadioPanel = new JPanel();
         RadioPanel.setLayout(new BoxLayout(RadioPanel, BoxLayout.Y_AXIS));
@@ -66,25 +68,47 @@ public class Setup extends JFrame implements ActionListener {
         setVisible(true);
     }
 
+    public void createSecondPanel() {
+        getContentPane().removeAll();
+        JPanel themePanel = new JPanel();
+        themePanel.setLayout(new BoxLayout(themePanel, BoxLayout.Y_AXIS));
+        themePanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
+
+        JLabel label = new JLabel("Select a theme:");
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        themePanel.add(label);
+        themePanel.add(Box.createRigidArea(new Dimension(0, 30)));
+
+        JLabel label2 = new JLabel("This can be changed later if you wish");
+        label2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        themePanel.add(label2);
+        JButton backButton = new JButton("Back");
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backButton.addActionListener(this);
+        getContentPane().add(themePanel);
+        revalidate();
+        repaint();
+    }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == button3) { // Check for "Continue" button press
-            if (button1.isSelected()) {
+            if (button1.isSelected() && !LanguageSelected) {
                 englishSelected = true;
                 LanguageSelected = true;
-            } else if (button2.isSelected()) {
+                createSecondPanel();
+            } else if (button2.isSelected() && !LanguageSelected) {
                 LanguageSelected = true;
+                createSecondPanel();
             } else {
                 JOptionPane.showMessageDialog(this, "Please choose an option / Veuillez choisir une option", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-
     public static void main(String[] args) {
-        Setup frame = new Setup();
-        frame.createFirstPanel();
+        new Setup().createFirstPanel();
     }
 
 }

@@ -21,7 +21,7 @@ public class Setup extends JFrame implements ActionListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setResizable(false);
-        setLocationRelativeTo(null); // Center the window
+        setLocationRelativeTo(null); // Centre the window
 
         // Create a JPanel with vertical BoxLayout
         JPanel RadioPanel = new JPanel();
@@ -32,7 +32,7 @@ public class Setup extends JFrame implements ActionListener {
         JLabel label = new JLabel("Select a langauge/Choisissez votre langue:");
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         RadioPanel.add(label);
-        RadioPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Add some spacing
+        RadioPanel.add(Box.createRigidArea(new Dimension(0, 30))); // Add some spacing
 
         // Create radio buttons
         button1 = new JRadioButton("English");
@@ -45,7 +45,7 @@ public class Setup extends JFrame implements ActionListener {
         group.add(button1);
         group.add(button2);
 
-        //w
+        //Add ActionListener
         button1.addActionListener(this);
         button2.addActionListener(this);
         // Add buttons to the panel
@@ -56,7 +56,7 @@ public class Setup extends JFrame implements ActionListener {
         //Add confirm button
         button3 = new JButton("Continue");
         button3.setAlignmentX(Component.CENTER_ALIGNMENT);
-        RadioPanel.add(Box.createRigidArea(new Dimension(0, 250)));
+        RadioPanel.add(Box.createRigidArea(new Dimension(0, 350)));
         button3.addActionListener(this);
         RadioPanel.add(button3);
         // Add panel to the frame
@@ -69,7 +69,7 @@ public class Setup extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == button3) { // Check for "Continue" button click
+        if (e.getSource() == button3) { // Check for "Continue" button press
             if (button1.isSelected()) {
                 englishSelected = true;
                 LanguageSelected = true;

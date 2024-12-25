@@ -8,6 +8,8 @@ public class Setup extends JFrame implements ActionListener {
     private boolean LanguageSelected = false;
     public boolean englishSelected = false;
     private boolean themeSelected = false;
+    private boolean userConfirmed = false;
+    private boolean darkModeSelected = false;
 
     public Setup() {
         // Set system look and feel. setLookAndFeel throws an exception, so try-catch is required to handle the method
@@ -33,7 +35,7 @@ public class Setup extends JFrame implements ActionListener {
         RadioPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20)); // Add padding
 
         // Create and add a label
-        JLabel label = new JLabel("Select a langauge/Choisissez votre langue:");
+        JLabel label = new JLabel("Select a langauge to begin/Choisissez votre langue pour commencer:");
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         RadioPanel.add(label);
         RadioPanel.add(Box.createRigidArea(new Dimension(0, 30))); // Add some spacing
@@ -133,7 +135,12 @@ public class Setup extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == button3 && !LanguageSelected) { // Check for "Continue" button press
+        if(e.getSource() == button3 && LanguageSelected && !themeSelected) {
+            getContentPane().removeAll();
+            createThirdPanel();
+            themeSelected = true;
+
+        } else if (e.getSource() == button3 && !LanguageSelected) { // Check for "Continue" button press
             if (button1.isSelected()) {
                 englishSelected = true;
                 LanguageSelected = true;
@@ -146,18 +153,18 @@ public class Setup extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please choose an option / Veuillez choisir une option", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-        if (e.getSource() == backButton) {
+        if (e.getSource() == backButton && themeSelected) {
+            themeSelected = false;
+            createSecondPanel();
+        } else if (e.getSource() == backButton) {
+            themeSelected = false;
             LanguageSelected = false;
             englishSelected = false;
             getContentPane().removeAll();
             createFirstPanel();
             redraw();
         }
-        if(e.getSource() == button3 && LanguageSelected && !themeSelected) {
-            getContentPane().removeAll();
-            createThirdPanel();
 
-        }
 
     }
     public void redraw(){

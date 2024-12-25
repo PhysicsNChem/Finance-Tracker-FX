@@ -7,6 +7,7 @@ public class Setup extends JFrame implements ActionListener {
     private JButton button3, backButton;
     private boolean LanguageSelected = false;
     public boolean englishSelected = false;
+    private boolean themeSelected = false;
 
     public Setup() {
         // Set system look and feel. setLookAndFeel throws an exception, so try-catch is required to handle the method
@@ -101,6 +102,33 @@ public class Setup extends JFrame implements ActionListener {
         getContentPane().add(themePanel);
         redraw();
     }
+    public void createThirdPanel() {
+        getContentPane().removeAll();
+        JPanel userPanel = new JPanel();
+        userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
+        userPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
+
+        JLabel label = new JLabel("Now, what's your name? Add a profile picture and set a password");
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        userPanel.add(label);
+
+        userPanel.add(Box.createVerticalStrut(383));
+
+        JPanel buttonRow = new JPanel();
+        buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonRow.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
+        backButton = new JButton("Back");
+        backButton.addActionListener(this);
+        buttonRow.add(backButton);
+        button3 = new JButton("Continue");
+        button3.addActionListener(this);
+        buttonRow.add(button3);
+        userPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        userPanel.add(buttonRow);
+        getContentPane().add(userPanel);
+        redraw();
+    }
 
 
     @Override
@@ -125,12 +153,9 @@ public class Setup extends JFrame implements ActionListener {
             createFirstPanel();
             redraw();
         }
-        if(e.getSource() == button3) {
-            LanguageSelected = false;
-            englishSelected = false;
+        if(e.getSource() == button3 && LanguageSelected && !themeSelected) {
             getContentPane().removeAll();
-            createFirstPanel();
-            redraw();
+            createThirdPanel();
 
         }
 

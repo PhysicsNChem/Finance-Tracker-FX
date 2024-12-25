@@ -10,6 +10,8 @@ public class Setup extends JFrame implements ActionListener {
     private boolean themeSelected = false;
     private boolean userConfirmed = false;
     private boolean darkModeSelected = false;
+    public String userName = "";
+    public String password = "";
 
     public Setup() {
         // Set system look and feel. setLookAndFeel throws an exception, so try-catch is required to handle the method
@@ -110,15 +112,45 @@ public class Setup extends JFrame implements ActionListener {
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
         userPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
 
+
+
         JLabel label = new JLabel("Now, what's your name? Add a profile picture and set a password");
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         userPanel.add(label);
-
+        userPanel.add(Box.createGlue());
+        Box horizontalBox = Box.createHorizontalBox();
         ImageIcon defaultIcon = new ImageIcon("resources/default-profile-picture.png-2731391301.png");
         JLabel defaultLabel = new JLabel(defaultIcon);
-        userPanel.add(defaultLabel);
+        horizontalBox.add(defaultLabel);
+        userPanel.add(horizontalBox);
 
         userPanel.add(Box.createVerticalStrut(20));
+
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5)); // Align components to the left
+        inputPanel.setMaximumSize(new Dimension(400, 50)); // Limit the size of the input panel
+
+        JLabel nameLabel = new JLabel("Name:");
+        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        inputPanel.add(nameLabel);
+
+        JTextField nameField = new JTextField();
+        nameField.setColumns(20); // Sets the preferred size for the text field
+        JScrollPane scrollPane = new JScrollPane(nameField);
+        scrollPane.setMaximumSize(new Dimension(300, 40)); // Limit size of the scrollable area
+        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
+        userPanel.add(scrollPane);
+
+        userPanel.add(Box.createVerticalStrut(20));
+
+        JTextField passwordField = new JPasswordField();
+        passwordField.setColumns(20);
+        JScrollPane scrollPane2 = new JScrollPane(passwordField);
+        scrollPane2.setMaximumSize(new Dimension(300, 40));
+        scrollPane2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        userPanel.add(scrollPane2);
+
+        userPanel.add(inputPanel);
 
         JPanel buttonRow = new JPanel();
         buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
@@ -129,11 +161,14 @@ public class Setup extends JFrame implements ActionListener {
         button3 = new JButton("Continue");
         button3.addActionListener(this);
         buttonRow.add(button3);
-        userPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        userPanel.add(Box.createRigidArea(new Dimension(0, 180)));
 
         userPanel.add(buttonRow);
         getContentPane().add(userPanel);
         redraw();
+    }
+    public void createDonePanel() {
+        getContentPane().removeAll();
     }
 
 

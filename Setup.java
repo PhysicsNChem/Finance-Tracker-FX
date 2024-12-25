@@ -4,15 +4,16 @@ import javax.swing.*;
 
 public class Setup extends JFrame implements ActionListener {
     private JRadioButton button1, button2;
-    private JButton button3;
+    private JButton button3, backButton;
     private boolean LanguageSelected = false;
     public boolean englishSelected = false;
 
     public Setup() {
-        // Set system Look and Feel
+        // Set system look and feel. setLookAndFeel throws an exception, so try-catch is required to handle the method
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
 
@@ -81,11 +82,14 @@ public class Setup extends JFrame implements ActionListener {
 
         JLabel label2 = new JLabel("This can be changed later if you wish");
         label2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        themePanel.add(Box.createRigidArea(new Dimension(0, 350)));
+        themePanel.add(Box.createRigidArea(new Dimension(0, 340)));
         themePanel.add(label2);
-        JButton backButton = new JButton("Back");
+        
+        backButton = new JButton("Back");
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(this);
+        themePanel.add(Box.createRigidArea(new Dimension(0, 50)));
+        themePanel.add(backButton);
         getContentPane().add(themePanel);
         revalidate();
         repaint();
@@ -98,6 +102,7 @@ public class Setup extends JFrame implements ActionListener {
             if (button1.isSelected()) {
                 englishSelected = true;
                 LanguageSelected = true;
+                //Moves to next page
                 createSecondPanel();
             } else if (button2.isSelected()) {
                 LanguageSelected = true;
@@ -105,6 +110,13 @@ public class Setup extends JFrame implements ActionListener {
             } else {
                 JOptionPane.showMessageDialog(this, "Please choose an option / Veuillez choisir une option", "Error", JOptionPane.ERROR_MESSAGE);
             }
+        }
+        if (e.getSource() == backButton) {
+            LanguageSelected = false;
+            getContentPane().removeAll();
+            createFirstPanel();
+            revalidate();
+            repaint();
         }
 
     }

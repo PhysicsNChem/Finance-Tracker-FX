@@ -5,8 +5,8 @@ import javax.swing.*;
 public class Setup extends JFrame implements ActionListener {
     private JRadioButton button1, button2;
     private JButton button3;
-    private static boolean LanguageSelected = false;
-    public static boolean englishSelected = false;
+    private boolean LanguageSelected = false;
+    public boolean englishSelected = false;
 
     public Setup() {
         // Set system Look and Feel
@@ -15,7 +15,7 @@ public class Setup extends JFrame implements ActionListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+    } public void createFirstPanel() {
         // Set up JFrame
         setTitle("FBLA Project Setup");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -26,7 +26,7 @@ public class Setup extends JFrame implements ActionListener {
         // Create a JPanel with vertical BoxLayout
         JPanel RadioPanel = new JPanel();
         RadioPanel.setLayout(new BoxLayout(RadioPanel, BoxLayout.Y_AXIS));
-        RadioPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add padding
+        RadioPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20)); // Add padding
 
         // Create and add a label
         JLabel label = new JLabel("Select a langauge/Choisissez votre langue:");
@@ -83,7 +83,8 @@ public class Setup extends JFrame implements ActionListener {
 
 
     public static void main(String[] args) {
-        new Setup();
+        Setup frame = new Setup();
+        frame.createFirstPanel();
     }
 
 }

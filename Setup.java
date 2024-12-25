@@ -113,6 +113,7 @@ public class Setup extends JFrame implements ActionListener {
         }
         if (e.getSource() == backButton) {
             LanguageSelected = false;
+            englishSelected = false;
             getContentPane().removeAll();
             createFirstPanel();
             revalidate();

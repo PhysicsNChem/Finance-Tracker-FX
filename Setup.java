@@ -124,44 +124,51 @@ public class Setup extends JFrame implements ActionListener {
         horizontalBox.add(defaultLabel);
         userPanel.add(horizontalBox);
 
-        userPanel.add(Box.createVerticalStrut(20));
+        userPanel.add(Box.createVerticalStrut(20)); // Spacing below the image
 
+        // Add input panel with label and text field
         JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5)); // Align components to the left
+        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.X_AXIS)); // Layout for horizontal centering
         inputPanel.setMaximumSize(new Dimension(400, 50)); // Limit the size of the input panel
 
-        JLabel nameLabel = new JLabel("Name:");
+        JLabel nameLabel = new JLabel("Name ");
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         inputPanel.add(nameLabel);
 
-        JTextField nameField = new JTextField();
-        nameField.setColumns(20); // Sets the preferred size for the text field
+        JTextField nameField = new JTextField(20);
+        nameField.setMaximumSize(new Dimension(200, nameField.getPreferredSize().height)); // Set max size
         JScrollPane scrollPane = new JScrollPane(nameField);
-        scrollPane.setMaximumSize(new Dimension(300, 40)); // Limit size of the scrollable area
-        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
-        userPanel.add(scrollPane);
+        inputPanel.add(scrollPane);
 
-        userPanel.add(Box.createVerticalStrut(20));
-
-        JTextField passwordField = new JPasswordField();
-        passwordField.setColumns(20);
+        JTextField passwordField = new JPasswordField(20);
+        passwordField.setMaximumSize(new Dimension(200, passwordField.getPreferredSize().height));
         JScrollPane scrollPane2 = new JScrollPane(passwordField);
-        scrollPane2.setMaximumSize(new Dimension(300, 40));
-        scrollPane2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        userPanel.add(scrollPane2);
+        inputPanel.add(scrollPane2);
 
-        userPanel.add(inputPanel);
+        userPanel.add(inputPanel); // Add the input panel to the main panel
+        userPanel.add(Box.createVerticalStrut(20)); // Add vertical spacing
 
+        // Add buttons
         JPanel buttonRow = new JPanel();
         buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonRow.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
+
         backButton = new JButton("Back");
         backButton.addActionListener(this);
         buttonRow.add(backButton);
+
         button3 = new JButton("Continue");
-        button3.addActionListener(this);
+        button3.addActionListener(e -> {
+            String userName = nameField.getText(); // Capture user input from the text box
+            if (userName.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Name cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Hello, " + userName + "! Proceeding to the next step.");
+                // Proceed to the next panel
+                createDonePanel();
+            }
+        });
         buttonRow.add(button3);
-        userPanel.add(Box.createRigidArea(new Dimension(0, 180)));
 
         userPanel.add(buttonRow);
         getContentPane().add(userPanel);
@@ -169,6 +176,7 @@ public class Setup extends JFrame implements ActionListener {
     }
     public void createDonePanel() {
         getContentPane().removeAll();
+        redraw();
     }
 
 

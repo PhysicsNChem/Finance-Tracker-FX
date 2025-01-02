@@ -12,6 +12,7 @@ public class Setup extends JFrame implements ActionListener {
     private boolean darkModeSelected = false;
     public String userName = "";
     public String password = "";
+    public String passwordConfirm = "";
 
     public Setup() {
         // Set system look and feel. setLookAndFeel throws an exception, so try-catch is required to handle the method
@@ -108,16 +109,18 @@ public class Setup extends JFrame implements ActionListener {
     }
     public void createThirdPanel() {
         getContentPane().removeAll();
+
+        // Main panel with BoxLayout (vertical)
         JPanel userPanel = new JPanel();
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
         userPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
 
-
-
         JLabel label = new JLabel("Now, what's your name? Add a profile picture and set a password");
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         userPanel.add(label);
-        userPanel.add(Box.createGlue());
+        userPanel.add(Box.createVerticalStrut(20)); // Add spacing below the label
+
+        // Profile picture
         Box horizontalBox = Box.createHorizontalBox();
         ImageIcon defaultIcon = new ImageIcon("resources/default-profile-picture.png-2731391301.png");
         JLabel defaultLabel = new JLabel(defaultIcon);
@@ -126,29 +129,49 @@ public class Setup extends JFrame implements ActionListener {
 
         userPanel.add(Box.createVerticalStrut(20)); // Spacing below the image
 
-        // Add input panel with label and text field
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.X_AXIS)); // Layout for horizontal centering
-        inputPanel.setMaximumSize(new Dimension(400, 50)); // Limit the size of the input panel
+        // Centered input fields panel
+        JPanel centeredPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10); // Add padding between components
 
-        JLabel nameLabel = new JLabel("Name ");
-        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        inputPanel.add(nameLabel);
+        // Name label and field
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.EAST; // Right-align the label
+        centeredPanel.add(new JLabel("Name: "), gbc);
 
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Allow text field to stretch
         JTextField nameField = new JTextField(20);
-        nameField.setMaximumSize(new Dimension(200, nameField.getPreferredSize().height)); // Set max size
-        JScrollPane scrollPane = new JScrollPane(nameField);
-        inputPanel.add(scrollPane);
+        centeredPanel.add(nameField, gbc);
 
-        JTextField passwordField = new JPasswordField(20);
-        passwordField.setMaximumSize(new Dimension(200, passwordField.getPreferredSize().height));
-        JScrollPane scrollPane2 = new JScrollPane(passwordField);
-        inputPanel.add(scrollPane2);
+        // Password label and field
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE; // Reset fill for label
+        centeredPanel.add(new JLabel("Password: "), gbc);
 
-        userPanel.add(inputPanel); // Add the input panel to the main panel
-        userPanel.add(Box.createVerticalStrut(20)); // Add vertical spacing
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Allow password field to stretch
+        JPasswordField passwordField = new JPasswordField(20);
+        centeredPanel.add(passwordField, gbc);
 
-        // Add buttons
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE; // Reset fill for label
+        centeredPanel.add(new JLabel("Confirm password: "), gbc);
+
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Allow password field to stretch
+        JPasswordField confirmPassword = new JPasswordField(20);
+        centeredPanel.add(confirmPassword, gbc);
+
+
+
+        userPanel.add(centeredPanel); // Add centered panel to the main panel
+        userPanel.add(Box.createVerticalStrut(20)); // Add spacing below the input fields
+
+        // Buttons panel
         JPanel buttonRow = new JPanel();
         buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonRow.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));

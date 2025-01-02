@@ -10,9 +10,7 @@ public class Setup extends JFrame implements ActionListener {
     private boolean themeSelected = false;
     private boolean userConfirmed = false;
     private boolean darkModeSelected = false;
-    public String userName = "";
-    public String password = "";
-    public String passwordConfirm = "";
+    public String userName, password, passwordConfirm = "";
 
     public Setup() {
         // Set system look and feel. setLookAndFeel throws an exception, so try-catch is required to handle the method
@@ -157,7 +155,7 @@ public class Setup extends JFrame implements ActionListener {
         centeredPanel.add(passwordField, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.fill = GridBagConstraints.NONE; // Reset fill for label
         centeredPanel.add(new JLabel("Confirm password: "), gbc);
 
@@ -182,7 +180,7 @@ public class Setup extends JFrame implements ActionListener {
 
         button3 = new JButton("Continue");
         button3.addActionListener(e -> {
-            String userName = nameField.getText(); // Capture user input from the text box
+             userName = nameField.getText(); // Capture user input from the text box
             if (userName.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Name cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
             } else {

@@ -197,6 +197,9 @@ public class Setup extends JFrame implements ActionListener {
     }
     public void createDonePanel() {
         getContentPane().removeAll();
+        JPanel donePanel = new JPanel();
+        button3 = new JButton("Open FBLA Project");
+        getContentPane().add(donePanel);
         redraw();
     }
 

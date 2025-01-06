@@ -12,7 +12,8 @@ public class Setup extends JFrame implements ActionListener {
     private boolean userConfirmed = false;
     private boolean darkModeSelected = false;
     private boolean countrySelected = false;
-    public String userName, password, passwordConfirm = "";
+    public String userName;
+    public char [] password, passwordConfirm;
 
     public Setup() {
         // Set system look and feel. setLookAndFeel throws an exception, so try-catch is required to handle the method
@@ -191,16 +192,15 @@ public class Setup extends JFrame implements ActionListener {
         button3 = new JButton("Continue");
         button3.addActionListener(e -> {
              userName = nameField.getText(); // Capture user input from the text box
-             password = passwordField.getText();
-             passwordConfirm = confirmPassword.getText();
+             password = passwordField.getPassword();
+             passwordConfirm = confirmPassword.getPassword();
             if (userName.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Name cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 
-            } else if(!checkPassword(password, passwordConfirm)) {
+            } /*else if(!password.equals(passwordConfirm)) {
                 JOptionPane.showMessageDialog(this, "Passwords do not match!", "Warning", JOptionPane.WARNING_MESSAGE);
-            } else {
+            }*/ else {
                 userConfirmed = true;
-                JOptionPane.showMessageDialog(this, "Hello, " + userName + "! Proceeding to the next step.", null, JOptionPane.PLAIN_MESSAGE);
                 // Proceed to the next panel
                 createCountryPanel();
             }
@@ -216,15 +216,22 @@ public class Setup extends JFrame implements ActionListener {
         JPanel countryPanel = new JPanel();
         countryPanel.setLayout(new BoxLayout(countryPanel, BoxLayout.Y_AXIS));
         countryPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
+        JLabel label = new JLabel("Country:");
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        countryPanel.add(label);
         countryPanel.add(Box.createVerticalStrut(50));
-        JButton backButton = new JButton("Back");
-        JButton button3 = new JButton("Continue");
+        backButton = new JButton("Back");
+        button3 = new JButton("Continue");
+        JPanel buttonRow = new JPanel();
+        buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonRow.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
         button3.addActionListener(this);
         backButton.addActionListener(this);
         button3.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        countryPanel.add(backButton);
-        countryPanel.add(button3);
+        buttonRow.add(backButton);
+        buttonRow.add(button3);
+        countryPanel.add(buttonRow);
         getContentPane().add(countryPanel);
         redraw();
     }
@@ -251,7 +258,7 @@ public class Setup extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == button3 && userConfirmed && !countrySelected) {
+        if ((e.getSource() == button3) && userConfirmed && !countrySelected) {
             countrySelected = true;
             createDonePanel();
         }
@@ -273,16 +280,19 @@ public class Setup extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please choose an option / Veuillez choisir une option", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-        if (e.getSource() == backButton && themeSelected) {
+        if (e.getSource() == backButton && userConfirmed) {
+            userConfirmed = false;
+            createThirdPanel();
+        } else if (e.getSource() == backButton && themeSelected) {
             themeSelected = false;
             createSecondPanel();
-        } else if (e.getSource() == backButton) {
-            themeSelected = false;
+            redraw();
+
+        } else if (e.getSource() == backButton && LanguageSelected) {
             LanguageSelected = false;
             englishSelected = false;
             getContentPane().removeAll();
             createFirstPanel();
-            redraw();
         }
 
 
@@ -290,9 +300,6 @@ public class Setup extends JFrame implements ActionListener {
     public void redraw(){
         revalidate();
         repaint();
-    }
-    public boolean checkPassword(String pw, String confpw) {
-        return pw.equals(confpw);
     }
 
     public static void main(String[] args) {

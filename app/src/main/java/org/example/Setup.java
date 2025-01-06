@@ -128,7 +128,7 @@ public class Setup extends JFrame implements ActionListener {
 
         // Profile picture
         Box horizontalBox = Box.createHorizontalBox();
-        ImageIcon defaultIcon = new ImageIcon("resources/default-profile-picture.png-2731391301.png");
+        ImageIcon defaultIcon = new ImageIcon(getClass().getClassLoader().getResource("images/default-profile-picture.png-2731391301.png"));
         JLabel defaultLabel = new JLabel(defaultIcon);
         horizontalBox.add(defaultLabel);
         userPanel.add(horizontalBox);

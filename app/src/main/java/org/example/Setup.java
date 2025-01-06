@@ -1,3 +1,4 @@
+package org.example;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -10,6 +11,7 @@ public class Setup extends JFrame implements ActionListener {
     private boolean themeSelected = false;
     private boolean userConfirmed = false;
     private boolean darkModeSelected = false;
+    private boolean countrySelected = false;
     public String userName, password, passwordConfirm = "";
 
     public Setup() {
@@ -34,6 +36,7 @@ public class Setup extends JFrame implements ActionListener {
         UIManager.put("RadioButton.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
         UIManager.put("TextField.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
         UIManager.put("PasswordField.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
+        UIManager.put("OptionPane.messageFont", new Font("Segoe UI Variable", Font.PLAIN, 14));
     }
 
     public void createFirstPanel() {
@@ -127,7 +130,7 @@ public class Setup extends JFrame implements ActionListener {
 
         // Profile picture
         Box horizontalBox = Box.createHorizontalBox();
-        ImageIcon defaultIcon = new ImageIcon("resources/default-profile-picture.png-2731391301.png");
+        ImageIcon defaultIcon = new ImageIcon(getClass().getClassLoader().getResource("images/default-profile-picture.png-2731391301.png"));
         JLabel defaultLabel = new JLabel(defaultIcon);
         horizontalBox.add(defaultLabel);
         userPanel.add(horizontalBox);
@@ -193,11 +196,13 @@ public class Setup extends JFrame implements ActionListener {
             if (userName.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Name cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 
+            } else if(!checkPassword(password, passwordConfirm)) {
+                JOptionPane.showMessageDialog(this, "Passwords do not match!", "Warning", JOptionPane.WARNING_MESSAGE);
             } else {
                 userConfirmed = true;
                 JOptionPane.showMessageDialog(this, "Hello, " + userName + "! Proceeding to the next step.", null, JOptionPane.PLAIN_MESSAGE);
                 // Proceed to the next panel
-                createDonePanel();
+                createCountryPanel();
             }
         });
         buttonRow.add(button3);
@@ -208,6 +213,20 @@ public class Setup extends JFrame implements ActionListener {
     }
     public void createCountryPanel() {
         getContentPane().removeAll();
+        JPanel countryPanel = new JPanel();
+        countryPanel.setLayout(new BoxLayout(countryPanel, BoxLayout.Y_AXIS));
+        countryPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
+        countryPanel.add(Box.createVerticalStrut(50));
+        JButton backButton = new JButton("Back");
+        JButton button3 = new JButton("Continue");
+        button3.addActionListener(this);
+        backButton.addActionListener(this);
+        button3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        countryPanel.add(backButton);
+        countryPanel.add(button3);
+        getContentPane().add(countryPanel);
+        redraw();
     }
     public void createDonePanel() {
         getContentPane().removeAll();
@@ -232,7 +251,11 @@ public class Setup extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == button3 && LanguageSelected && !themeSelected) {
+        if (e.getSource() == button3 && userConfirmed && !countrySelected) {
+            countrySelected = true;
+            createDonePanel();
+        }
+        else if(e.getSource() == button3 && LanguageSelected && !themeSelected) {
             getContentPane().removeAll();
             createThirdPanel();
             themeSelected = true;
@@ -268,8 +291,8 @@ public class Setup extends JFrame implements ActionListener {
         revalidate();
         repaint();
     }
-    public boolean checkPassword(String password, String confirmPassword) {
-        return password.equals(confirmPassword);
+    public boolean checkPassword(String pw, String confpw) {
+        return pw.equals(confpw);
     }
 
     public static void main(String[] args) {

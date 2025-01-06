@@ -9,6 +9,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+
 }
 
 repositories {
@@ -40,5 +41,5 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.App"
+     mainClass = "org.example.Main"
 }

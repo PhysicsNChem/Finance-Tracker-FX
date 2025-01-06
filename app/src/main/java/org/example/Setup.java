@@ -32,12 +32,12 @@ public class Setup extends JFrame implements ActionListener {
         setLocationRelativeTo(null); // Centre the window
 
         //Set a nicer font
-        UIManager.put("Label.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
-        UIManager.put("Button.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
-        UIManager.put("RadioButton.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
-        UIManager.put("TextField.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
-        UIManager.put("PasswordField.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
-        UIManager.put("OptionPane.messageFont", new Font("Segoe UI Variable", Font.PLAIN, 14));
+        UIManager.put("Label.font", new Font(OSFont(), Font.PLAIN, 14));
+        UIManager.put("Button.font", new Font(OSFont(), Font.PLAIN, 14));
+        UIManager.put("RadioButton.font", new Font(OSFont(), Font.PLAIN, 14));
+        UIManager.put("TextField.font", new Font(OSFont(), Font.PLAIN, 14));
+        UIManager.put("PasswordField.font", new Font(OSFont(), Font.PLAIN, 14));
+        UIManager.put("OptionPane.messageFont", new Font(OSFont(), Font.PLAIN, 14));
     }
 
     public void createFirstPanel() {
@@ -260,7 +260,7 @@ public class Setup extends JFrame implements ActionListener {
         donePanel.setLayout(new BoxLayout(donePanel, BoxLayout.Y_AXIS));
         donePanel.add(Box.createVerticalStrut(75));
         JLabel thanks = new JLabel("Thank you!");
-        thanks.setFont(new Font("Segoe UI Variable", Font.BOLD, 24));
+        thanks.setFont(new Font(OSFont(), Font.BOLD, 24));
         thanks.setAlignmentX(Component.CENTER_ALIGNMENT);
         donePanel.add(thanks);
         donePanel.add(Box.createVerticalStrut(250));
@@ -276,6 +276,7 @@ public class Setup extends JFrame implements ActionListener {
 
 
     @Override
+    //used to control back/continue button behaviour
     public void actionPerformed(ActionEvent e) {
         if ((e.getSource() == button3) && userConfirmed && !countrySelected) {
             countrySelected = true;
@@ -316,13 +317,26 @@ public class Setup extends JFrame implements ActionListener {
 
 
     }
+    //helper methods
     public void redraw(){
         revalidate();
         repaint();
     }
+    public static String OSFont(){
+        double version = Double.parseDouble(System.getProperty("os.version"));
+        if(version >= 10.0 && System.getProperty("os.name").contains("Windows")){
+            return "Segoe UI Variable";
+        } else if (version <= 6.3 && System.getProperty("os.name").contains("Windows")){
+        return "Verdana";
+        } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+        return "San Francisco";
+        }
+        return "Ubuntu";
+    }
 
     public static void main(String[] args) {
         new Setup().createFirstPanel();
+
     }
 
 }

@@ -4,7 +4,7 @@ import javax.swing.*;
 
 public class Setup extends JFrame implements ActionListener {
     private JRadioButton button1, button2;
-    private JButton button3, backButton;
+    private JButton button3, backButton, doneButton;
     private boolean LanguageSelected = false;
     public boolean englishSelected = false;
     private boolean themeSelected = false;
@@ -27,6 +27,13 @@ public class Setup extends JFrame implements ActionListener {
         setSize(800, 600);
         setResizable(false);
         setLocationRelativeTo(null); // Centre the window
+
+        //Set a nicer font
+        UIManager.put("Label.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
+        UIManager.put("Button.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
+        UIManager.put("RadioButton.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
+        UIManager.put("TextField.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
+        UIManager.put("PasswordField.font", new Font("Segoe UI Variable", Font.PLAIN, 14));
     }
 
     public void createFirstPanel() {
@@ -125,7 +132,7 @@ public class Setup extends JFrame implements ActionListener {
         horizontalBox.add(defaultLabel);
         userPanel.add(horizontalBox);
 
-        userPanel.add(Box.createVerticalStrut(20)); // Spacing below the image
+
 
         // Centered input fields panel
         JPanel centeredPanel = new JPanel(new GridBagLayout());
@@ -167,7 +174,7 @@ public class Setup extends JFrame implements ActionListener {
 
 
         userPanel.add(centeredPanel); // Add centered panel to the main panel
-        userPanel.add(Box.createVerticalStrut(20)); // Add spacing below the input fields
+        userPanel.add(Box.createVerticalStrut(10)); // Add spacing below the input fields
 
         // Buttons panel
         JPanel buttonRow = new JPanel();
@@ -181,10 +188,14 @@ public class Setup extends JFrame implements ActionListener {
         button3 = new JButton("Continue");
         button3.addActionListener(e -> {
              userName = nameField.getText(); // Capture user input from the text box
+             password = passwordField.getText();
+             passwordConfirm = confirmPassword.getText();
             if (userName.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Name cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+
             } else {
-                JOptionPane.showMessageDialog(this, "Hello, " + userName + "! Proceeding to the next step.");
+                userConfirmed = true;
+                JOptionPane.showMessageDialog(this, "Hello, " + userName + "! Proceeding to the next step.", null, JOptionPane.PLAIN_MESSAGE);
                 // Proceed to the next panel
                 createDonePanel();
             }
@@ -195,10 +206,25 @@ public class Setup extends JFrame implements ActionListener {
         getContentPane().add(userPanel);
         redraw();
     }
+    public void createCountryPanel() {
+        getContentPane().removeAll();
+    }
     public void createDonePanel() {
         getContentPane().removeAll();
         JPanel donePanel = new JPanel();
-        button3 = new JButton("Open FBLA Project");
+        donePanel.setLayout(new BoxLayout(donePanel, BoxLayout.Y_AXIS));
+        donePanel.add(Box.createVerticalStrut(75));
+        JLabel thanks = new JLabel("Thank you!");
+        thanks.setFont(new Font("Segoe UI Variable", Font.BOLD, 24));
+        thanks.setAlignmentX(Component.CENTER_ALIGNMENT);
+        donePanel.add(thanks);
+        donePanel.add(Box.createVerticalStrut(250));
+        doneButton = new JButton("Open FBLA Project");
+        doneButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        doneButton.addActionListener(e -> {
+            System.exit(0);
+        });
+        donePanel.add(doneButton);
         getContentPane().add(donePanel);
         redraw();
     }
@@ -241,6 +267,9 @@ public class Setup extends JFrame implements ActionListener {
     public void redraw(){
         revalidate();
         repaint();
+    }
+    public boolean checkPassword(String password, String confirmPassword) {
+        return password.equals(confirmPassword);
     }
 
     public static void main(String[] args) {

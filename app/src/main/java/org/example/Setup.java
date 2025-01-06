@@ -129,14 +129,33 @@ public class Setup extends JFrame implements ActionListener {
         userPanel.add(label);
         userPanel.add(Box.createVerticalStrut(20)); // Add spacing below the label
 
-        // Profile picture
+
+
+        //Option to add profile picture
         Box horizontalBox = Box.createHorizontalBox();
+        JButton profileOption = new JButton("");
+        profileOption.addActionListener(e ->{
+            //System.out.println("Profile option selected");
+            if(System.getProperty("os.name").contains("Windows")) {
+                System.out.println("Profile option selected");
+            }
+    });
+
+
+        String iconFilePath = this.getClass().getClassLoader().getResource("images/icons8-camera-32.png").getFile();
+        profileOption.setIcon(new ImageIcon(iconFilePath));
+        profileOption.setBounds(10, 438, 39, 31);
+        profileOption.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        profileOption.setContentAreaFilled(false);
+        profileOption.setFocusable(false);
+        horizontalBox.add(profileOption);
+
+        // Profile picture
+
         ImageIcon defaultIcon = new ImageIcon(getClass().getClassLoader().getResource("images/default-profile-picture.png-2731391301.png"));
         JLabel defaultLabel = new JLabel(defaultIcon);
         horizontalBox.add(defaultLabel);
         userPanel.add(horizontalBox);
-
-
 
         // Centered input fields panel
         JPanel centeredPanel = new JPanel(new GridBagLayout());

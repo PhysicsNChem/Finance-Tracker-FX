@@ -97,7 +97,6 @@ public class Setup extends JFrame implements ActionListener {
 
         JLabel label2 = new JLabel("This can be changed later if you wish");
         label2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        themePanel.add(Box.createRigidArea(new Dimension(0, 340)));
         themePanel.add(label2);
 
         JPanel buttonRow = new JPanel();
@@ -278,6 +277,9 @@ public class Setup extends JFrame implements ActionListener {
         else {
             countryList = new JList<>(countriesFR);
         }
+        //Centre the elements
+        DefaultListCellRenderer renderer = (DefaultListCellRenderer) countryList.getCellRenderer();
+        renderer.setHorizontalAlignment(SwingConstants.CENTER);
         //Disable the option to edit the list
         countryList.setEnabled(true);
         //Create a scroll pane with its own panel to contain the list within the window

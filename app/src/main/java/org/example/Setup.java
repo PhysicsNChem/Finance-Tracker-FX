@@ -137,8 +137,8 @@ public class Setup extends JFrame implements ActionListener {
         //Option to add profile picture
         Box horizontalBox = Box.createHorizontalBox();
         JButton profileOption = new JButton("");
+        profileOption.setToolTipText("Choose a profile picture");
         profileOption.addActionListener(e ->{
-            //System.out.println("Profile option selected");
             if(System.getProperty("os.name").contains("Windows")) {
                 JFileChooser chooser = new JFileChooser(System.getProperty("user.home") + "/Pictures");
                 chooser.setAcceptAllFileFilterUsed(false); //restrict file type
@@ -250,6 +250,10 @@ public class Setup extends JFrame implements ActionListener {
         JLabel label = new JLabel("Country:");
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         countryPanel.add(label);
+        JTextArea countries = new JTextArea(10, 40);
+        JScrollPane countryScrollPane = new JScrollPane(countries, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        countries.setEditable(false);
+
         countryPanel.add(Box.createVerticalStrut(50));
         backButton = new JButton("Back");
         button3 = new JButton("Continue");

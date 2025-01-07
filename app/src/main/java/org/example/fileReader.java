@@ -2,7 +2,7 @@ package org.example;
 import java.io.*;
 public class fileReader {
     public static void main(String[] args) {
-        File myObj = new File("filename.txt");
+        File myObj = new File("src/main/resources/info/info.txt");
         if (myObj.exists()) {
             System.out.println("File name: " + myObj.getName());
             System.out.println("Absolute path: " + myObj.getAbsolutePath());

@@ -2,6 +2,8 @@ package org.example;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileSystemView;
 
 public class Setup extends JFrame implements ActionListener {
     private JRadioButton button1, button2;
@@ -38,6 +40,7 @@ public class Setup extends JFrame implements ActionListener {
         UIManager.put("TextField.font", new Font(OSFont(), Font.PLAIN, 14));
         UIManager.put("PasswordField.font", new Font(OSFont(), Font.PLAIN, 14));
         UIManager.put("OptionPane.messageFont", new Font(OSFont(), Font.PLAIN, 14));
+        UIManager.put("FileChooser.font", new Font(OSFont(), Font.PLAIN, 14));
     }
 
     public void createFirstPanel() {
@@ -116,7 +119,7 @@ public class Setup extends JFrame implements ActionListener {
         getContentPane().add(themePanel);
         redraw();
     }
-    public void createThirdPanel() {
+    public void createUserPanel() {
         getContentPane().removeAll();
 
         // Main panel with BoxLayout (vertical)
@@ -137,6 +140,15 @@ public class Setup extends JFrame implements ActionListener {
         profileOption.addActionListener(e ->{
             //System.out.println("Profile option selected");
             if(System.getProperty("os.name").contains("Windows")) {
+                JFileChooser chooser = new JFileChooser(System.getProperty("user.home") + "/Pictures");
+                chooser.setAcceptAllFileFilterUsed(false); //restrict file type
+                chooser.setDialogTitle("Set a profile picture");
+
+                //restrict file type further to .png
+                FileNameExtensionFilter restrict = new FileNameExtensionFilter(".png", "png");
+                chooser.addChoosableFileFilter(restrict);
+
+                int show  = chooser.showOpenDialog(null);
                 System.out.println("Profile option selected");
             }
     });
@@ -284,7 +296,7 @@ public class Setup extends JFrame implements ActionListener {
         }
         else if(e.getSource() == button3 && LanguageSelected && !themeSelected) {
             getContentPane().removeAll();
-            createThirdPanel();
+            createUserPanel();
             themeSelected = true;
 
         } else if (e.getSource() == button3 && !LanguageSelected) { // Check for "Continue" button press
@@ -302,7 +314,7 @@ public class Setup extends JFrame implements ActionListener {
         }
         if (e.getSource() == backButton && userConfirmed) {
             userConfirmed = false;
-            createThirdPanel();
+            createUserPanel();
         } else if (e.getSource() == backButton && themeSelected) {
             themeSelected = false;
             createSecondPanel();

@@ -40,7 +40,7 @@ public class Setup extends JFrame implements ActionListener {
         }
     }
 
-    public void createFirstPanel() {
+    public void createLangPanel() {
         // Create a JPanel with vertical BoxLayout
         JPanel RadioPanel = new JPanel();
         RadioPanel.setLayout(new BoxLayout(RadioPanel, BoxLayout.Y_AXIS));
@@ -84,7 +84,7 @@ public class Setup extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    public void createSecondPanel() {
+    public void createThemePanel() {
         getContentPane().removeAll();
         JPanel themePanel = new JPanel();
         themePanel.setLayout(new BoxLayout(themePanel, BoxLayout.Y_AXIS));
@@ -149,6 +149,18 @@ public class Setup extends JFrame implements ActionListener {
                 System.out.println("Profile option selected");
             }
     });
+
+        //Change mouse pointer when hovering over the icon
+        profileOption.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                profileOption.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                profileOption.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
 
 
         String iconFilePath = this.getClass().getClassLoader().getResource("images/icons8-camera-32.png").getFile();
@@ -255,10 +267,17 @@ public class Setup extends JFrame implements ActionListener {
         "Spain", "Sweden","Switzerland","United Arab Emirates", "United Kingdom", "United States"};
 
         String[] countriesFR = {"Allemagne", "Andorre", "Autriche", "Belgique", "Bulgarie", "Canada", "Chypre", "Corée", "Croatie", "Danemark", "Émirats arabs unis",
-        "Espagne", "Estonie", "États-unis", "Finlande", "Grèce", "Hongrie", "Inde", "Indonésie", "Irlande", "Italie", "Japon", "Lettonie", "Lituanie","Luxembourg"};
+        "Espagne", "Estonie", "États-unis", "Finlande", "Grèce", "Hongrie", "Inde", "Indonésie", "Irlande", "Italie", "Japon", "Lettonie", "Lituanie", "Luxembourg", "Malaisie", "Malte", "Maurice", "Norvège",
+            "Pays-Bas", "Pologne", "Portugal", "Republique tchèque", "Roumanie", "Royaume-Uni", "Singapour", "Slovaquie", "Slovénie", "Suède", "Suisse"};
 
         //Create a JList to display options, depending on language selected
-        JList<String> countryList = new JList<>(countriesEN);
+        JList<String> countryList;
+        if(englishSelected) {
+            countryList = new JList<>(countriesEN);
+        }
+        else {
+            countryList = new JList<>(countriesFR);
+        }
         //Disable the option to edit the list
         countryList.setEnabled(true);
         //Create a scroll pane with its own panel to contain the list within the window
@@ -289,12 +308,23 @@ public class Setup extends JFrame implements ActionListener {
         JPanel donePanel = new JPanel();
         donePanel.setLayout(new BoxLayout(donePanel, BoxLayout.Y_AXIS));
         donePanel.add(Box.createVerticalStrut(75));
-        JLabel thanks = new JLabel("Thank you!");
+        JLabel thanks;
+        if(englishSelected) {
+            thanks = new JLabel("Thank you!");
+        }
+        else {
+            thanks = new JLabel("Merci !");
+        }
         thanks.setFont(new Font(OSFont(), Font.BOLD, 24));
         thanks.setAlignmentX(Component.CENTER_ALIGNMENT);
         donePanel.add(thanks);
         donePanel.add(Box.createVerticalStrut(250));
-        doneButton = new JButton("Open FBLA Project");
+        if(englishSelected) {
+            doneButton = new JButton("Open FBLA Project");
+        }
+        else {
+            doneButton = new JButton("Ouvrir FBLA Project");
+        }
         doneButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         doneButton.addActionListener(e -> {
             System.exit(0);
@@ -322,10 +352,10 @@ public class Setup extends JFrame implements ActionListener {
                 englishSelected = true;
                 LanguageSelected = true;
                 //Moves to next page
-                createSecondPanel();
+                createThemePanel();
             } else if (button2.isSelected()) {
                 LanguageSelected = true;
-                createSecondPanel();
+                createThemePanel();
             } else {
                 JOptionPane.showMessageDialog(this, "Please choose an option / Veuillez choisir une option", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -335,14 +365,14 @@ public class Setup extends JFrame implements ActionListener {
             createUserPanel();
         } else if (e.getSource() == backButton && themeSelected) {
             themeSelected = false;
-            createSecondPanel();
+            createThemePanel();
             redraw();
 
         } else if (e.getSource() == backButton && LanguageSelected) {
             LanguageSelected = false;
             englishSelected = false;
             getContentPane().removeAll();
-            createFirstPanel();
+            createLangPanel();
         }
 
 
@@ -365,7 +395,7 @@ public class Setup extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new Setup().createFirstPanel();
+        new Setup().createLangPanel();
 
     }
 

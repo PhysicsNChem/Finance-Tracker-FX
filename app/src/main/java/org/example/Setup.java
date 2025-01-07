@@ -12,7 +12,7 @@ public class Setup extends JFrame implements ActionListener {
     public boolean englishSelected = false;
     private boolean themeSelected = false;
     private boolean userConfirmed = false;
-    private boolean darkModeSelected = true;
+    public boolean darkModeSelected = true;
     private boolean countrySelected = false;
     public String userName;
     public char [] password, passwordConfirm;
@@ -340,6 +340,11 @@ public class Setup extends JFrame implements ActionListener {
         }
         doneButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         doneButton.addActionListener(e -> {
+            //write files to .txt file
+            fileWrite info = new fileWrite();
+            info.createFile();
+            info.writeInformation(darkModeSelected, englishSelected, userName);
+            //exit program
             System.exit(0);
         });
         donePanel.add(doneButton);

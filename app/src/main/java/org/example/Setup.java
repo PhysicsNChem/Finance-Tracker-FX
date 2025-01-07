@@ -12,7 +12,7 @@ public class Setup extends JFrame implements ActionListener {
     public boolean englishSelected = false;
     private boolean themeSelected = false;
     private boolean userConfirmed = false;
-    private boolean darkModeSelected = false;
+    private boolean darkModeSelected = true;
     private boolean countrySelected = false;
     public String userName;
     public char [] password, passwordConfirm;
@@ -33,10 +33,11 @@ public class Setup extends JFrame implements ActionListener {
         setResizable(false);
         setLocationRelativeTo(null); // Centre the window
 
+
         //Set a nicer font
         String[] components = {"Label.font", "Button.font", "RadioButton.font", "TextField.font", "PasswordField.font", "OptionPane.messageFont", "FileChooser.font", "List.font"};
         for (String component : components) {
-            UIManager.put(component, new Font(OSFont(), Font.PLAIN, 14));
+            UIManager.put(component, new Font(OSFont(), Font.PLAIN, 15));
         }
     }
 
@@ -45,9 +46,10 @@ public class Setup extends JFrame implements ActionListener {
         JPanel RadioPanel = new JPanel();
         RadioPanel.setLayout(new BoxLayout(RadioPanel, BoxLayout.Y_AXIS));
         RadioPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20)); // Add padding
-
+        RadioPanel.setBackground(new Color(42, 42, 42));
         // Create and add a label
         JLabel label = new JLabel("Select a langauge to begin/Choisissez votre langue pour commencer:");
+        label.setForeground(new Color(255, 255, 255));
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         RadioPanel.add(label);
         RadioPanel.add(Box.createRigidArea(new Dimension(0, 30))); // Add some spacing
@@ -57,6 +59,11 @@ public class Setup extends JFrame implements ActionListener {
         button2 = new JRadioButton("Français");
         button1.setAlignmentX(Component.CENTER_ALIGNMENT);
         button2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //Adjust as dark mode is default
+        button1.setBackground(new Color(42, 42, 42));
+        button1.setForeground(new Color(255, 255, 255));
+        button2.setBackground(new Color(42, 42, 42));
+        button2.setForeground(new Color(255, 255, 255));
 
         // Group the buttons so only one can be selected
         ButtonGroup group = new ButtonGroup();
@@ -73,6 +80,10 @@ public class Setup extends JFrame implements ActionListener {
 
         //Add confirm button
         button3 = new JButton("Continue");
+        button3.setBorderPainted(false);
+        button3.setOpaque(false);
+        button3.setBackground(new Color(80, 80, 80));
+        button3.setForeground(new Color(255, 255, 255));
         button3.setAlignmentX(Component.CENTER_ALIGNMENT);
         RadioPanel.add(Box.createRigidArea(new Dimension(0, 340)));
         button3.addActionListener(this);
@@ -359,7 +370,7 @@ public class Setup extends JFrame implements ActionListener {
                 LanguageSelected = true;
                 createThemePanel();
             } else {
-                JOptionPane.showMessageDialog(this, "Please choose an option / Veuillez choisir une option", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Please choose an option / Veuillez choisir une option", "Error", JOptionPane.WARNING_MESSAGE);
             }
         }
         if (e.getSource() == backButton && userConfirmed) {

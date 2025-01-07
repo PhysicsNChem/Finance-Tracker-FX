@@ -247,13 +247,9 @@ public class Setup extends JFrame implements ActionListener {
         JPanel countryPanel = new JPanel();
         countryPanel.setLayout(new BoxLayout(countryPanel, BoxLayout.Y_AXIS));
         countryPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
-        JLabel label = new JLabel("Country:");
+        JLabel label = new JLabel("Finally, country:");
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         countryPanel.add(label);
-        JTextArea countries = new JTextArea(10, 40);
-        JScrollPane countryScrollPane = new JScrollPane(countries, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        countries.setEditable(false);
-
         countryPanel.add(Box.createVerticalStrut(50));
         backButton = new JButton("Back");
         button3 = new JButton("Continue");

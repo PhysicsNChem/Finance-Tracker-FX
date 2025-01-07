@@ -352,7 +352,7 @@ public class Setup extends JFrame implements ActionListener {
         redraw();
     }
 
-
+    //overrides default behaviour for this method
     @Override
     //used to control back/continue button behaviour
     public void actionPerformed(ActionEvent e) {

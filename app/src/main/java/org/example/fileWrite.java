@@ -1,11 +1,17 @@
 package org.example;
 import java.io.*;
-import javax.swing.JOptionPane;
-
+import javax.swing.*;
 
 
 public class fileWrite implements fileWriteMethods {
+
     public void createFile(){
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
         try {
             File myObj = new File("src/main/resources/info/info.txt");
             if (myObj.createNewFile()) {

@@ -1,9 +1,9 @@
 package org.example;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.filechooser.FileSystemView;
+import javax.swing.filechooser.*;
 
 public class Setup extends JFrame implements ActionListener {
     private JRadioButton button1, button2;
@@ -34,13 +34,10 @@ public class Setup extends JFrame implements ActionListener {
         setLocationRelativeTo(null); // Centre the window
 
         //Set a nicer font
-        UIManager.put("Label.font", new Font(OSFont(), Font.PLAIN, 14));
-        UIManager.put("Button.font", new Font(OSFont(), Font.PLAIN, 14));
-        UIManager.put("RadioButton.font", new Font(OSFont(), Font.PLAIN, 14));
-        UIManager.put("TextField.font", new Font(OSFont(), Font.PLAIN, 14));
-        UIManager.put("PasswordField.font", new Font(OSFont(), Font.PLAIN, 14));
-        UIManager.put("OptionPane.messageFont", new Font(OSFont(), Font.PLAIN, 14));
-        UIManager.put("FileChooser.font", new Font(OSFont(), Font.PLAIN, 14));
+        String[] components = {"Label.font", "Button.font", "RadioButton.font", "TextField.font", "PasswordField.font", "OptionPane.messageFont", "FileChooser.font", "List.font"};
+        for (String component : components) {
+            UIManager.put(component, new Font(OSFont(), Font.PLAIN, 14));
+        }
     }
 
     public void createFirstPanel() {
@@ -251,6 +248,27 @@ public class Setup extends JFrame implements ActionListener {
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         countryPanel.add(label);
         countryPanel.add(Box.createVerticalStrut(50));
+        //Create a String array of select countries
+        String[] countriesEN = {"Andorra", "Austria", "Belgium", "Bulgaria", "Canada", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany","Greece",
+        "Hungary", "India", "Indonesia", "Ireland", "Italy", "Japan", "Korea", "Latvia", "Lithuania", "Luxembourg", "Malaysia",
+                "Malta", "Mauritius", "Netherlands", "Norway", "Poland", "Portugal", "Romania", "Singapore", "Slovakia", "Slovenia",
+        "Spain", "Sweden","Switzerland","United Arab Emirates", "United Kingdom", "United States"};
+
+        String[] countriesFR = {"Allemagne", "Andorre", "Autriche", "Belgique", "Bulgarie", "Canada", "Chypre", "Corée", "Croatie", "Danemark", "Émirats arabs unis",
+        "Espagne", "Estonie", "États-unis", "Finlande", "Grèce", "Hongrie", "Inde", "Indonésie", "Irlande", "Italie", "Japon", "Lettonie", "Lituanie","Luxembourg"};
+
+        //Create a JList to display options, depending on language selected
+        JList<String> countryList = new JList<>(countriesEN);
+        //Disable the option to edit the list
+        countryList.setEnabled(true);
+        //Create a scroll pane with its own panel to contain the list within the window
+        JPanel scrollPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JScrollPane countryScrollPane = new JScrollPane(countryList);
+        countryScrollPane.setPreferredSize(new Dimension(200, 275));
+
+        scrollPanel.add(countryScrollPane, BorderLayout.CENTER);
+        countryPanel.add(scrollPanel);
+
         backButton = new JButton("Back");
         button3 = new JButton("Continue");
         JPanel buttonRow = new JPanel();

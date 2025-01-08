@@ -344,8 +344,9 @@ public class Setup extends JFrame implements ActionListener {
             fileWrite info = new fileWrite();
             info.createFile();
             info.writeInformation(darkModeSelected, englishSelected, userName);
-            //exit program
-            System.exit(0);
+            //instantiate appRestart
+            appRestart restarter = new appRestart();
+            restarter.restartApplication();
         });
         donePanel.add(doneButton);
         getContentPane().add(donePanel);

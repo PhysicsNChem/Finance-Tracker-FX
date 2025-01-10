@@ -8,8 +8,11 @@ public class Main {
     public static void main(String[] args) {
         File check = new File("src/main/resources/info/info.txt");
         if(!check.exists()) {
-            Setup.main(args);
+            Setup setup = new Setup();
+            setup.createLangPanel();
+
         }
+
 
         //fileReader.main(args);
 

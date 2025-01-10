@@ -413,9 +413,5 @@ public class Setup extends JFrame implements ActionListener {
         return "Ubuntu";
     }
 
-    public static void main(String[] args) {
-        new Setup().createLangPanel();
-
-    }
 
 }

@@ -1,6 +1,6 @@
 // Java
 package com.app.demo;
-
+//Class helps to itemize the transaction details
 public class Transaction {
     private String date;
     private String description;
@@ -38,11 +38,27 @@ public class Transaction {
         return incomeExpense;
     }
 
+    public String getPayer() {
+        return payer;
+    }
+
     public void setIncomeExpense(String incomeExpense) {
         this.incomeExpense = incomeExpense;
     }
 
-    public String getPayer() {
-        return payer;
+    public void setPayer(String payer) {
+        this.payer = payer;
+    }
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public void setDate(String date) {
+        this.date = date;
     }
 }

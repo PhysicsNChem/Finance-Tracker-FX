@@ -18,6 +18,7 @@ import javafx.application.Platform;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class TransactionController {
     private SceneSwitcher switcher;
@@ -36,6 +37,7 @@ public class TransactionController {
     public String memo;
     public String incomeExpense;
     public String payer;
+    public String date;
 
     public void setSceneSwitcher(SceneSwitcher switcher) {
         this.switcher = switcher;
@@ -59,14 +61,20 @@ public class TransactionController {
     private TableColumn<Transaction, Void> actionColumn;
     @FXML
     private Label totalBalanceLabel;
+    @FXML
+    private Button updateButton;
+    @FXML
+    private Button removeButton;
 
     private ObservableList<Transaction> transactionList = FXCollections.observableArrayList();
     private FilteredList<Transaction> filteredTransactionList = new FilteredList<>(transactionList);
-    private DoubleProperty totalBalance = new SimpleDoubleProperty(0.0);
+    private DoubleProperty totalBalance;
     private ObservableList<Category> categories = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
+        updateButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
+        removeButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
         emptyLabel = new Label("No transactions available. Click or tap 'Add Transaction' to get started!");
         incomeExpenseColumn.setCellValueFactory(new PropertyValueFactory<>("incomeExpense"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
@@ -76,7 +84,7 @@ public class TransactionController {
         payerColumn.setCellValueFactory(new PropertyValueFactory<>("payer"));
 
         loadTransactionsFromDatabase();
-
+        totalBalance.set(TransactionDAO.getTotalBalance());
         amountColumn.setCellFactory(column -> new TableCell<Transaction, Double>() {
             private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
@@ -90,6 +98,7 @@ public class TransactionController {
                 }
             }
         });
+        updateButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
 
         filteredTransactionList = new FilteredList<>(transactionList, p -> true);
 
@@ -268,7 +277,7 @@ public class TransactionController {
             memo = descriptionField.getText();
             String incomeExpenseValue = incomeExpense.getValue();
             String payerValue = payerField.getText();
-            String date = java.time.LocalDate.now().toString();
+            date = java.time.LocalDate.now().toString();
             categoryValue = categoryComboBox.getValue();
             if (categoryValue == null) {
                 System.out.println("Category not selected");
@@ -295,9 +304,7 @@ public class TransactionController {
         }
     }
 
-    private void updateTotalBalance(String incomeExpense, double amount) {
-        totalBalance.set(totalBalance.get() + amount);
-    }
+
 
     @FXML
     private void onViewTransaction(ActionEvent event) {
@@ -332,7 +339,7 @@ public class TransactionController {
         grid.add(assetTypeComboBox, 1, 1);
 
         dialog.getDialogPane().setContent(grid);
-        Platform.runLater(() -> assetNameField.requestFocus());
+        Platform.runLater(assetNameField::requestFocus);
 
         Optional<ButtonType> result = dialog.showAndWait();
 
@@ -396,15 +403,108 @@ public class TransactionController {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Update Transaction");
         dialog.setHeaderText("Enter updated transaction details");
+        ButtonType addButtonType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+        TextField amountField = new TextField();
+        amountField.setPromptText("Enter an amount here");
+        TextField payerField = new TextField();
+        payerField.setPromptText("Enter payer/recipient here");
+        ComboBox<String> incomeExpense = new ComboBox<>();
+        incomeExpense.getItems().addAll("Expense", "Income");
+        incomeExpense.setValue("Expense");
+        ComboBox<Category> categoryComboBox = new ComboBox<>(filterCategories(incomeExpense.getValue()));
+        TextField descriptionField = new TextField();
         GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setMaxWidth(Double.MAX_VALUE);
+        grid.add(new Label("Update amount:"), 0, 0);
+        grid.add(amountField, 1, 0);
+        grid.add(new Label("Update payer/recipient:"), 0, 1);
+        grid.add(payerField, 1, 1);
+        grid.add(new Label("Update income/expense:"), 0, 2);
+        grid.add(incomeExpense, 1, 2);
+        grid.add(new Label("Update category:"), 0, 3);
+        grid.add(categoryComboBox, 1, 3);
+        grid.add(new Label("Update memo (optional):"), 0, 4);
+        grid.add(descriptionField, 1, 4);
         dialog.getDialogPane().setContent(grid);
         Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isPresent() && result.get() == addButtonType) {
+            try {
+                amount = Double.parseDouble(amountField.getText());
+                if (amount <= 0) {
+                    System.out.println("Invalid amount entered");
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Error");
+                    alert.setContentText("Enter a non-zero value within the 64-bit limit, please.");
+                    alert.showAndWait();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid amount entered");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setContentText("Enter only numbers in the amount field, please.");
+                alert.showAndWait();
+                return;
+            }
+            memo = descriptionField.getText();
+            String incomeExpenseValue = incomeExpense.getValue();
+            String payerValue = payerField.getText();
+            date = java.time.LocalDate.now().toString();
+            categoryValue = categoryComboBox.getValue();
+            if (categoryValue == null) {
+                System.out.println("Category not selected");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setContentText("Please select a category.");
+                alert.showAndWait();
+                return;
+            }
+            if ("Expense".equals(incomeExpenseValue)) {
+                amount = -amount; // Make the amount negative for expenses
+            }
+            Transaction transaction = transactionsTable.getSelectionModel().getSelectedItem();
+            updateTotalBalance(transaction.getIncomeExpense(), -transaction.getAmount());
+            transaction.setAmount(amount);
+            transaction.setCategory(categoryValue);
+            transaction.setIncomeExpense(incomeExpenseValue);
+            transaction.setPayer(payerValue);
+            transaction.setDate(date);
+            transaction.setDescription(memo);
+            updateTotalBalance(incomeExpenseValue, amount);
+            TransactionDAO.updateTransaction(transaction);
+            System.out.println("Transaction updated: Amount = " + amount + ", Description = " + memo);
+            List<Transaction> transactions = TransactionDAO.getTransactions();
+            for (Transaction t : transactions) {
+                System.out.println(t.getDescription() + ": " + t.getAmount());
+            }
+        } else {
+            System.out.println("Transaction update canceled.");
+        }
         System.out.println("Update Transaction button clicked");
     }
 
     @FXML
     private void onRemoveTransaction(ActionEvent event) {
         // Handle Remove Transaction button click
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Remove Transaction");
+        dialog.setHeaderText("Are you sure you want to remove this transaction?");
+        ButtonType removeButtonType = new ButtonType("Remove", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(removeButtonType, ButtonType.CANCEL);
+        Optional<ButtonType> result = dialog.showAndWait();
+        Transaction transaction = transactionsTable.getSelectionModel().getSelectedItem();
+        if (result.isPresent() && result.get() == removeButtonType) {
+            transactionList.remove(transaction);
+            updateTotalBalance(transaction.getIncomeExpense(), -transaction.getAmount());
+            TransactionDAO.deleteTransaction(transaction);
+        }
         System.out.println("Remove Transaction button clicked");
+    }
+    private void updateTotalBalance(String incomeExpense, double amount) {
+        totalBalance.set(totalBalance.get() + amount);
+        TransactionDAO.saveTotalBalance(totalBalance.get());
     }
 }

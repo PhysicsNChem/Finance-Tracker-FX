@@ -45,8 +45,8 @@
 
         <AnchorPane layoutX="625.0" layoutY="-25.0" prefHeight="320.0" prefWidth="150.0">
             <HBox layoutY="60.0" spacing="10.0">
-                <Button mnemonicParsing="false" onAction="#onUpdateTransaction" text="Update transaction" />
-                <Button mnemonicParsing="false" onAction="#onRemoveTransaction" text="Remove transaction" />
+                <Button fx:id="updateButton" mnemonicParsing="false" onAction="#onUpdateTransaction" text="Update transaction" />
+                <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveTransaction" text="Remove transaction" />
             </HBox>
             <Button layoutY="100.0" mnemonicParsing="false" onAction="#onViewTransaction" text="View transaction" />
             <Button layoutY="140.0" mnemonicParsing="false" onAction="#onSaveTransaction" text="Save transactions" />

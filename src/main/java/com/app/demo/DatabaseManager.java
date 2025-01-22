@@ -26,7 +26,7 @@ public class DatabaseManager {
                 "description TEXT," +
                 "amount REAL NOT NULL," +
                 "category TEXT NOT NULL," + // This column will be used to store the category name
-                "incomeExpense TEXT NOT NULL," + // Added incomeExpense column
+                "incomeExpense TEXT NOT NULL," + // Add incomeExpense column
                 "payer TEXT" +
                 ");";
 

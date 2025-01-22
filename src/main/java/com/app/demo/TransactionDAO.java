@@ -94,12 +94,14 @@ public class TransactionDAO {
         }
     }
     public static double getTotalBalance(){
+        String sql = "SELECT SUM(amount) AS total_balance FROM transactions";
         double totalBalance = 0;
-        String sql = "SELECT total_balance FROM totalBalance";
         try (Connection conn = DatabaseManager.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            totalBalance = rs.getDouble("balance");
+            if(rs.next()) {
+                totalBalance = rs.getDouble("total_balance");
+            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

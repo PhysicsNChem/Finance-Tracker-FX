@@ -68,7 +68,7 @@ public class TransactionController {
 
     private ObservableList<Transaction> transactionList = FXCollections.observableArrayList();
     private FilteredList<Transaction> filteredTransactionList = new FilteredList<>(transactionList);
-    private DoubleProperty totalBalance;
+    private DoubleProperty totalBalance = new SimpleDoubleProperty(0);
     private ObservableList<Category> categories = FXCollections.observableArrayList();
 
     @FXML
@@ -419,6 +419,7 @@ public class TransactionController {
         grid.setVgap(10);
         grid.setMaxWidth(Double.MAX_VALUE);
         grid.add(new Label("Update amount:"), 0, 0);
+        grid.add(amountField, 1, 0);
         grid.add(amountField, 1, 0);
         grid.add(new Label("Update payer/recipient:"), 0, 1);
         grid.add(payerField, 1, 1);

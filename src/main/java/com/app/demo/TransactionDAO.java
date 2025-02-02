@@ -83,16 +83,7 @@ public class TransactionDAO {
             System.out.println(e.getMessage());
         }
     }
-    public static void saveTotalBalance(double totalBalance){
-        String sql = "UPDATE totalBalance SET balance = ?";
-        try (Connection conn = DatabaseManager.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setDouble(1, totalBalance);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+
     public static double getTotalBalance(){
         String sql = "SELECT SUM(amount) AS total_balance FROM transactions";
         double totalBalance = 0;

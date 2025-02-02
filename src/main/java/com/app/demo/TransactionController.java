@@ -17,6 +17,7 @@ import javafx.application.Platform;
 
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -405,21 +406,23 @@ public class TransactionController {
         dialog.setHeaderText("Enter updated transaction details");
         ButtonType addButtonType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
-        TextField amountField = new TextField();
+        TextField amountField = new TextField(amountColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()).toString());
         amountField.setPromptText("Enter an amount here");
-        TextField payerField = new TextField();
+        TextField payerField = new TextField(payerColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
         payerField.setPromptText("Enter payer/recipient here");
         ComboBox<String> incomeExpense = new ComboBox<>();
         incomeExpense.getItems().addAll("Expense", "Income");
-        incomeExpense.setValue("Expense");
+        incomeExpense.setValue(incomeExpenseColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
         ComboBox<Category> categoryComboBox = new ComboBox<>(filterCategories(incomeExpense.getValue()));
-        TextField descriptionField = new TextField();
+        categoryComboBox.setValue(categoryColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
+        DatePicker datePicker = new DatePicker();
+        datePicker.setValue(LocalDate.parse(dateColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex())));
+        TextField descriptionField = new TextField(descriptionColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setMaxWidth(Double.MAX_VALUE);
         grid.add(new Label("Update amount:"), 0, 0);
-        grid.add(amountField, 1, 0);
         grid.add(amountField, 1, 0);
         grid.add(new Label("Update payer/recipient:"), 0, 1);
         grid.add(payerField, 1, 1);
@@ -427,8 +430,10 @@ public class TransactionController {
         grid.add(incomeExpense, 1, 2);
         grid.add(new Label("Update category:"), 0, 3);
         grid.add(categoryComboBox, 1, 3);
-        grid.add(new Label("Update memo (optional):"), 0, 4);
-        grid.add(descriptionField, 1, 4);
+        grid.add(new Label("Update date:"), 0, 4);
+        grid.add(datePicker, 1, 4);
+        grid.add(new Label("Update memo (optional):"), 0, 5);
+        grid.add(descriptionField, 1, 5);
         dialog.getDialogPane().setContent(grid);
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get() == addButtonType) {
@@ -506,6 +511,5 @@ public class TransactionController {
     }
     private void updateTotalBalance(String incomeExpense, double amount) {
         totalBalance.set(totalBalance.get() + amount);
-        TransactionDAO.saveTotalBalance(totalBalance.get());
     }
 }

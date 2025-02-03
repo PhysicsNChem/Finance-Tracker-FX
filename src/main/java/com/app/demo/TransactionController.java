@@ -155,6 +155,7 @@ public class TransactionController {
         rootItem.getChildren().addAll(mainPageItem, assetsItem, liabilitiesItem);
         assetsLiabilitiesTreeView.setRoot(rootItem);
         assetsLiabilitiesTreeView.setShowRoot(false);
+        assetsLiabilitiesTreeView.getSelectionModel().select(mainPageItem);
 
         assetsLiabilitiesTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -252,7 +253,7 @@ public class TransactionController {
         });
 
         dialog.getDialogPane().setContent(grid);
-        Platform.runLater(() -> amountField.requestFocus());
+        Platform.runLater(amountField::requestFocus);
 
         Optional<ButtonType> result = dialog.showAndWait();
 
@@ -379,7 +380,7 @@ public class TransactionController {
         grid.add(liabilityNameField, 1, 0);
 
         dialog.getDialogPane().setContent(grid);
-        Platform.runLater(() -> liabilityNameField.requestFocus());
+        Platform.runLater(liabilityNameField::requestFocus);
 
         Optional<ButtonType> result = dialog.showAndWait();
 
@@ -406,7 +407,7 @@ public class TransactionController {
         dialog.setHeaderText("Enter updated transaction details");
         ButtonType addButtonType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
-        TextField amountField = new TextField(amountColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()).toString());
+        TextField amountField = new TextField(String.valueOf(Math.abs(amountColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()))));
         amountField.setPromptText("Enter an amount here");
         TextField payerField = new TextField(payerColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
         payerField.setPromptText("Enter payer/recipient here");
@@ -458,7 +459,7 @@ public class TransactionController {
             memo = descriptionField.getText();
             String incomeExpenseValue = incomeExpense.getValue();
             String payerValue = payerField.getText();
-            date = java.time.LocalDate.now().toString();
+            date = datePicker.getValue().toString();
             categoryValue = categoryComboBox.getValue();
             if (categoryValue == null) {
                 System.out.println("Category not selected");
@@ -482,6 +483,7 @@ public class TransactionController {
             updateTotalBalance(incomeExpenseValue, amount);
             TransactionDAO.updateTransaction(transaction);
             System.out.println("Transaction updated: Amount = " + amount + ", Description = " + memo);
+            filteredTransactionList.setPredicate(filteredTransactionList.getPredicate());
             List<Transaction> transactions = TransactionDAO.getTransactions();
             for (Transaction t : transactions) {
                 System.out.println(t.getDescription() + ": " + t.getAmount());

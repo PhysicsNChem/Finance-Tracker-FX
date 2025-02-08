@@ -70,4 +70,7 @@ public class Transaction {
     public void setDate(String date) {
         this.date = date;
     }
+    public String toString(){
+        return "Account: " + source + ", Date: " + date + ", Description: " + description + ", Amount: " + amount + ", Category: " + category.getName() + ", Income/Expense: " + incomeExpense + ", Payer: " + payer;
+    }
 }

@@ -195,7 +195,6 @@ public class TransactionController {
             selectedAssetLiabilityName = selectedItemValue;
         }
         updateFilter();
-        // Handle other selections if needed
     }
     @FXML
     private void loadMainTransactionPage() {
@@ -552,4 +551,14 @@ public class TransactionController {
         }
         return fullPath.toString();
     }
+    @FXML
+    private void onCopyTransaction(ActionEvent event) {
+    }
+
+    public void onHelloButtonClick(ActionEvent event) {
+    }
+
+    public void onReportButtonClick(ActionEvent event) {
+    }
+
 }

@@ -23,10 +23,13 @@ import java.util.*;
 public class TransactionController {
     private SceneSwitcher switcher;
     private Category categoryValue;
+    private String selectedAssetLiabilityName;
     @FXML
     private Label emptyLabel;
     @FXML
     private TextField searchField;
+    @FXML
+    private Label viewLabel;
     @FXML
     private ComboBox<Category> categoryFilterComboBox;
     @FXML
@@ -37,7 +40,7 @@ public class TransactionController {
     public String memo;
     public String incomeExpense;
     public String payer;
-    public String date;
+    private String date;
 
     public void setSceneSwitcher(SceneSwitcher switcher) {
         this.switcher = switcher;
@@ -45,6 +48,8 @@ public class TransactionController {
 
     @FXML
     private TableView<Transaction> transactionsTable;
+    @FXML
+    private TableColumn<Transaction, String> sourceColumn;
     @FXML
     private TableColumn<Transaction, String> dateColumn;
     @FXML
@@ -76,6 +81,7 @@ public class TransactionController {
         updateButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
         removeButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
         emptyLabel = new Label("No transactions available. Click or tap 'Add Transaction' to get started!");
+        sourceColumn.setCellValueFactory(new PropertyValueFactory<>("source"));
         incomeExpenseColumn.setCellValueFactory(new PropertyValueFactory<>("incomeExpense"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
@@ -102,7 +108,7 @@ public class TransactionController {
 
         filteredTransactionList = new FilteredList<>(transactionList, p -> true);
 
-        transactionsTable.setItems(transactionList);
+        transactionsTable.setItems(filteredTransactionList);
         transactionsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         transactionsTable.setPlaceholder(emptyLabel);
 
@@ -131,7 +137,7 @@ public class TransactionController {
         Category selectedCategory = categoryFilterComboBox.getValue();
 
         filteredTransactionList.setPredicate(transaction -> {
-            boolean matchesSearchText = searchText == null || searchText.isEmpty() ||
+            boolean matchesSearchText = searchText.isEmpty() ||
                     transaction.getDate().toLowerCase().contains(searchText) ||
                     transaction.getDescription().toLowerCase().contains(searchText) ||
                     transaction.getCategory().getName().toLowerCase().contains(searchText) ||
@@ -141,8 +147,11 @@ public class TransactionController {
 
             boolean matchesCategory = selectedCategory == null || transaction.getCategory().equals(selectedCategory);
 
-            return matchesSearchText && matchesCategory;
+            boolean matchesAssetLiability = selectedAssetLiabilityName == null || transaction.getSource().equals(selectedAssetLiabilityName);
+
+            return matchesSearchText && matchesCategory && matchesAssetLiability;
         });
+        transactionsTable.refresh();
     }
 
     @SuppressWarnings("unchecked")
@@ -152,7 +161,19 @@ public class TransactionController {
         TreeItem<String> assetsItem = new TreeItem<>("Assets");
         TreeItem<String> liabilitiesItem = new TreeItem<>("Liabilities");
 
+        List<String> assetLiabilityTypes = TransactionDAO.getAssetLiabilityTypes("Asset");
+        for(String assetType : assetLiabilityTypes) {
+            assetsItem.getChildren().add(new TreeItem<>(assetType));
+        }
+
+        List<String> liabilityTypes = TransactionDAO.getAssetLiabilityTypes("Liability");
+        for(String liabilityType : liabilityTypes) {
+            liabilitiesItem.getChildren().add(new TreeItem<>(liabilityType));
+        }
+
         rootItem.getChildren().addAll(mainPageItem, assetsItem, liabilitiesItem);
+        assetsItem.setExpanded(true);
+        liabilitiesItem.setExpanded(true);
         assetsLiabilitiesTreeView.setRoot(rootItem);
         assetsLiabilitiesTreeView.setShowRoot(false);
         assetsLiabilitiesTreeView.getSelectionModel().select(mainPageItem);
@@ -160,6 +181,7 @@ public class TransactionController {
         assetsLiabilitiesTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 handleTreeViewSelection(newValue);
+                viewLabel.setText(getFullPath(newValue));
             }
         });
     }
@@ -167,9 +189,12 @@ public class TransactionController {
     private void handleTreeViewSelection(TreeItem<String> selectedItem) {
         String selectedItemValue = selectedItem.getValue();
         if ("Main view".equals(selectedItemValue)) {
-            // Load the main transaction page
+            selectedAssetLiabilityName = null;
             loadMainTransactionPage();
+        } else{
+            selectedAssetLiabilityName = selectedItemValue;
         }
+        updateFilter();
         // Handle other selections if needed
     }
     @FXML
@@ -178,13 +203,9 @@ public class TransactionController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/main-view.fxml"));
             AnchorPane mainPage = loader.load();
             mainContainer.getChildren().setAll(mainPage);
-        }  catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Failed to load main view");
-            alert.setContentText("An error occurred while loading the main view. Please try again.");
-            alert.showAndWait();
-       }  catch (IllegalStateException e) {
+        }  catch (IOException e){
+            System.out.println("Main view load successful");
+        } catch (IllegalStateException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("Illegal State");
@@ -195,6 +216,7 @@ public class TransactionController {
 
     private void initializeCategories() {
         categories.addAll(
+                new Category("All categories"),
                 new Category("Food"),
                 new Category("Transport"),
                 new Category("Entertainment"),
@@ -296,7 +318,7 @@ public class TransactionController {
             if ("Expense".equals(incomeExpenseValue)) {
                 amount = -amount; // Make the amount negative for expenses
             }
-            Transaction transaction = new Transaction(date, memo, amount, categoryValue, incomeExpenseValue, payerValue);
+            Transaction transaction = new Transaction(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue(), date, memo, amount, categoryValue, incomeExpenseValue, payerValue);
             transactionList.add(transaction);
             updateTotalBalance(incomeExpenseValue, amount);
             TransactionDAO.insertTransaction(transaction);
@@ -359,6 +381,7 @@ public class TransactionController {
                 if (assetsNode != null) {
                     assetsNode.getChildren().add(new TreeItem<>(assetName));
                     assetsNode.setExpanded(true);
+                    TransactionDAO.insertAssetLiabilityType(assetName, "Asset");
                 }
             }
         }
@@ -519,5 +542,14 @@ public class TransactionController {
     }
     private void updateTotalBalance(String incomeExpense, double amount) {
         totalBalance.set(totalBalance.get() + amount);
+    }
+    private String getFullPath(TreeItem<String> item) {
+        StringBuffer fullPath = new StringBuffer(item.getValue());
+        TreeItem<String> parent = item.getParent();
+        while (parent != null && parent.getValue() != null) {
+            fullPath.insert(0, parent.getValue() + " → ");
+            parent = parent.getParent();
+        }
+        return fullPath.toString();
     }
 }

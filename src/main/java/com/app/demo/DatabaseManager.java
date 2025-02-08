@@ -30,12 +30,19 @@ public class DatabaseManager {
                 "incomeExpense TEXT NOT NULL," + // Add incomeExpense column
                 "payer TEXT" +
                 ");";
+        String createAssetLiabilityTypesTable = "CREATE TABLE IF NOT EXISTS asset_liability_types (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "name TEXT NOT NULL," +
+                "type TEXT NOT NULL" +
+                ");";
 
         try (Connection conn = connect();
              Statement stmt = conn.createStatement()) {
             stmt.execute(createTransactionsTable);
+            stmt.execute(createAssetLiabilityTypesTable);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
     }
 }

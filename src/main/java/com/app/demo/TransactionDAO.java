@@ -6,16 +6,17 @@ import java.util.*;
 
 public class TransactionDAO {
     public static void insertTransaction(Transaction transaction) {
-        String sql = "INSERT INTO transactions(date, description, amount, category, incomeExpense, payer) VALUES(?,?,?,?,?,?)";
+        String sql = "INSERT INTO transactions(source, date, description, amount, category, incomeExpense, payer) VALUES(?,?,?,?,?,?,?)";
 
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, transaction.getDate());
-            pstmt.setString(2, transaction.getDescription());
-            pstmt.setDouble(3, transaction.getAmount());
-            pstmt.setString(4, transaction.getCategory().getName());
-            pstmt.setString(5, transaction.getIncomeExpense());
-            pstmt.setString(6, transaction.getPayer());
+            pstmt.setString(1, transaction.getSource());
+            pstmt.setString(2, transaction.getDate());
+            pstmt.setString(3, transaction.getDescription());
+            pstmt.setDouble(4, transaction.getAmount());
+            pstmt.setString(5, transaction.getCategory().getName());
+            pstmt.setString(6, transaction.getIncomeExpense());
+            pstmt.setString(7, transaction.getPayer());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -33,6 +34,7 @@ public class TransactionDAO {
             while (rs.next()) {
                 Category category = new Category(rs.getString("category"));
                 Transaction transaction = new Transaction(
+                        rs.getString("source"),
                         rs.getString("date"),
                         rs.getString("description"),
                         rs.getDouble("amount"),
@@ -82,6 +84,34 @@ public class TransactionDAO {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+    public static void insertAssetLiabilityType(String name, String type){
+        String sql = "INSERT INTO asset_liability_types(name, type) VALUES(?,?)";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.setString(2, type);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public static List<String> getAssetLiabilityTypes(String type){
+        List<String> assetLiabilityTypes = new ArrayList<>();
+        String sql = "SELECT name FROM asset_liability_types WHERE type = ?";
+
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, type);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                assetLiabilityTypes.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return assetLiabilityTypes;
     }
 
     public static double getTotalBalance(){

@@ -10,7 +10,9 @@ public class Transaction {
     private String incomeExpense;
     private String payer;
 
-    public Transaction(String date, String description, double amount, Category category, String incomeExpense, String payer) {
+    public Transaction(String source, String date, String description, double amount, Category category, String incomeExpense, String payer)
+    {
+        this.source = source;
         this.date = date;
         this.description = description;
         this.amount = amount;
@@ -18,7 +20,9 @@ public class Transaction {
         this.incomeExpense = incomeExpense;
         this.payer = payer;
     }
-
+    public String getSource() {
+        return source;
+    }
     public String getDate() {
         return date;
     }
@@ -41,6 +45,10 @@ public class Transaction {
 
     public String getPayer() {
         return payer;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public void setIncomeExpense(String incomeExpense) {

@@ -22,6 +22,7 @@ public class DatabaseManager {
     public static void createTables() {
         String createTransactionsTable = "CREATE TABLE IF NOT EXISTS transactions (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "source TEXT NOT NULL," +
                 "date TEXT NOT NULL," +
                 "description TEXT," +
                 "amount REAL NOT NULL," +

@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class TransactionController {
     private SceneSwitcher switcher;
@@ -146,6 +145,7 @@ public class TransactionController {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private void initializeTreeView() {
         TreeItem<String> rootItem = new TreeItem<>("Transactions");
         TreeItem<String> mainPageItem = new TreeItem<>("Main view");
@@ -188,7 +188,7 @@ public class TransactionController {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("Illegal State");
-            alert.setContentText("An illegal state occurred. Please check the FXML file and initialization.");
+            alert.setContentText("An illegal state occurred. Please check the FXML file in the source code.");
             alert.showAndWait();
         }
     }
@@ -231,6 +231,8 @@ public class TransactionController {
         incomeExpense.getItems().addAll("Expense", "Income");
         incomeExpense.setValue("Expense");
         ComboBox<Category> categoryComboBox = new ComboBox<>(filterCategories(incomeExpense.getValue()));
+        DatePicker datePicker = new DatePicker();
+        datePicker.setValue(java.time.LocalDate.now());
         TextField descriptionField = new TextField();
 
         GridPane grid = new GridPane();
@@ -245,8 +247,10 @@ public class TransactionController {
         grid.add(incomeExpense, 1, 2);
         grid.add(new Label("Category:"), 0, 3);
         grid.add(categoryComboBox, 1, 3);
-        grid.add(new Label("Memo (optional):"), 0, 4);
-        grid.add(descriptionField, 1, 4);
+        grid.add(new Label("Date:"), 0, 4);
+        grid.add(datePicker, 1, 4);
+        grid.add(new Label("Memo (optional):"), 0, 5);
+        grid.add(descriptionField, 1, 5);
 
         incomeExpense.valueProperty().addListener((observable, oldValue, newValue) -> {
             categoryComboBox.setItems(filterCategories(newValue));
@@ -279,7 +283,7 @@ public class TransactionController {
             memo = descriptionField.getText();
             String incomeExpenseValue = incomeExpense.getValue();
             String payerValue = payerField.getText();
-            date = java.time.LocalDate.now().toString();
+            date = datePicker.getValue().toString();
             categoryValue = categoryComboBox.getValue();
             if (categoryValue == null) {
                 System.out.println("Category not selected");
@@ -419,6 +423,7 @@ public class TransactionController {
         DatePicker datePicker = new DatePicker();
         datePicker.setValue(LocalDate.parse(dateColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex())));
         TextField descriptionField = new TextField(descriptionColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
+
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -484,6 +489,7 @@ public class TransactionController {
             TransactionDAO.updateTransaction(transaction);
             System.out.println("Transaction updated: Amount = " + amount + ", Description = " + memo);
             filteredTransactionList.setPredicate(filteredTransactionList.getPredicate());
+            transactionsTable.refresh();
             List<Transaction> transactions = TransactionDAO.getTransactions();
             for (Transaction t : transactions) {
                 System.out.println(t.getDescription() + ": " + t.getAmount());

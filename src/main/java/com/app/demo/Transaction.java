@@ -1,7 +1,8 @@
-// Java
+
 package com.app.demo;
-//Class helps to itemize the transaction details
+
 public class Transaction {
+    private String source;
     private String date;
     private String description;
     private double amount;

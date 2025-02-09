@@ -13,14 +13,28 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/hello-view.fxml"));
-        Scene scene = new Scene(loader.load());
+
 
         DatabaseManager.createTables();
 
-        HelloController controller = loader.getController();
+
         SceneSwitcher switcher = new SceneSwitcher(primaryStage);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/hello-view.fxml"));
+        Scene scene = new Scene(loader.load());
+        HelloController controller = loader.getController();
         controller.setSceneSwitcher(switcher);
+
+        FXMLLoader transactionsLoader = new FXMLLoader(getClass().getResource("/com/app/demo/transactions-page.fxml"));
+        Parent transactionsRoot = transactionsLoader.load();
+        TransactionController transactionsController = transactionsLoader.getController();
+        transactionsController.setSceneSwitcher(switcher);
+
+        FXMLLoader reportsLoader = new FXMLLoader(getClass().getResource("/com/app/demo/reports-page.fxml"));
+        reportsLoader.load();
+
+        primaryStage.setTitle("FBLA Project");
+
+
 
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(1067);

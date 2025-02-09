@@ -113,6 +113,17 @@ public class TransactionDAO {
         }
         return assetLiabilityTypes;
     }
+    public static void deleteAssetLiabilityType(String name, String type){
+        String sql = "DELETE FROM asset_liability_types WHERE name = ? AND type = ?";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.setString(2, type);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
     public static double getTotalBalance(){
         String sql = "SELECT SUM(amount) AS total_balance FROM transactions";

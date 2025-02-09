@@ -15,7 +15,7 @@ public class SceneSwitcher {
     // Load a new scene from an FXML file
     public void switchTo(String fxmlFile) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlFile)));
             Scene scene = new Scene(root);
             stage.setMinWidth(1280);
             stage.setMinHeight(720);
@@ -27,7 +27,7 @@ public class SceneSwitcher {
     }
     public void preloadScene(String name, String fxmlFile) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlFile)));
             scenes.put(name, new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();

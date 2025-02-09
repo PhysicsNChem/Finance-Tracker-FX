@@ -1,5 +1,6 @@
 package com.app.demo;
 
+import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
@@ -25,6 +26,8 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class TransactionController {
+    @FXML
+    public Button home;
     private SceneSwitcher switcher;
     private Category categoryValue;
     private String selectedAssetLiabilityName;
@@ -77,14 +80,23 @@ public class TransactionController {
     private DoubleProperty totalBalance = new SimpleDoubleProperty(0);
     private ObservableList<Category> categories = FXCollections.observableArrayList();
 
+    public void setSceneSwitcher(SceneSwitcher switcher) {
+        if(switcher != null){
+            this.switcher = switcher;
+            System.out.println("Switcher is initialized!");
+        } else {
+            System.out.println("Switcher is not initialized!");
+        }
+    }
     @FXML
     public void initialize() {
+        initializeTreeView();
         updateButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
         removeButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
         addTransactionButton.disableProperty().bind(Bindings.createBooleanBinding(() ->
                         "Main view".equals(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue()),
                 assetsLiabilitiesTreeView.getSelectionModel().selectedItemProperty()));
-        emptyLabel = new Label("No transactions available. Click or tap 'Add Transaction' to get started!");
+        emptyLabel = new Label("No transactions available. Click or tap 'Add Asset' or 'Add Liability' to get started!");
         sourceColumn.setCellValueFactory(new PropertyValueFactory<>("source"));
         incomeExpenseColumn.setCellValueFactory(new PropertyValueFactory<>("incomeExpense"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
@@ -127,9 +139,10 @@ public class TransactionController {
             updateFilter();
         });
 
-        initializeTreeView();
+
         initializeCategories();
     }
+
     private void loadTransactionsFromDatabase() {
         List<Transaction> transactions = TransactionDAO.getTransactions();
         transactionList.setAll(transactions);
@@ -166,12 +179,12 @@ public class TransactionController {
         TreeItem<String> liabilitiesItem = new TreeItem<>("Liabilities");
 
         List<String> assetLiabilityTypes = TransactionDAO.getAssetLiabilityTypes("Asset");
-        for(String assetType : assetLiabilityTypes) {
+        for (String assetType : assetLiabilityTypes) {
             assetsItem.getChildren().add(new TreeItem<>(assetType));
         }
 
         List<String> liabilityTypes = TransactionDAO.getAssetLiabilityTypes("Liability");
-        for(String liabilityType : liabilityTypes) {
+        for (String liabilityType : liabilityTypes) {
             liabilitiesItem.getChildren().add(new TreeItem<>(liabilityType));
         }
 
@@ -195,18 +208,19 @@ public class TransactionController {
         if ("Main view".equals(selectedItemValue)) {
             selectedAssetLiabilityName = null;
             loadMainTransactionPage();
-        } else{
+        } else {
             selectedAssetLiabilityName = selectedItemValue;
         }
         updateFilter();
     }
+
     @FXML
     private void loadMainTransactionPage() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/main-view.fxml"));
             AnchorPane mainPage = loader.load();
             mainContainer.getChildren().setAll(mainPage);
-        }  catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Main view load successful");
         } catch (IllegalStateException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -228,6 +242,7 @@ public class TransactionController {
                 new Category("Other")
         );
     }
+
     private ObservableList<Category> filterCategories(String type) {
         return categories.filtered(category -> {
             if (type.equals("Income")) {
@@ -336,7 +351,6 @@ public class TransactionController {
     }
 
 
-
     @FXML
     private void onViewTransaction(ActionEvent event) {
         // Handle View transaction button click
@@ -346,6 +360,7 @@ public class TransactionController {
     private void onSaveTransaction(ActionEvent event) {
         // Handle Save transactions button click
     }
+
     @FXML
     private void onAddAsset(ActionEvent event) {
         Dialog<ButtonType> dialog = new Dialog<>();
@@ -358,7 +373,7 @@ public class TransactionController {
         TextField assetNameField = new TextField();
         assetNameField.setPromptText("Enter asset name");
         ComboBox<String> assetTypeComboBox = new ComboBox<>();
-        assetTypeComboBox.getItems().addAll( "Chequing Account", "Savings Account", "Brokerage", "Properties", "Others");
+        assetTypeComboBox.getItems().addAll("Chequing Account", "Savings Account", "Brokerage", "Properties", "Others");
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -543,9 +558,11 @@ public class TransactionController {
         }
         System.out.println("Remove Transaction button clicked");
     }
+
     private void updateTotalBalance(String incomeExpense, double amount) {
         totalBalance.set(totalBalance.get() + amount);
     }
+
     private String getFullPath(TreeItem<String> item) {
         StringBuffer fullPath = new StringBuffer(item.getValue());
         TreeItem<String> parent = item.getParent();
@@ -555,6 +572,7 @@ public class TransactionController {
         }
         return fullPath.toString();
     }
+
     @FXML
     private void onCopyTransaction(ActionEvent event) {
         Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -563,23 +581,17 @@ public class TransactionController {
         clipboard.setContent(tr);
         System.out.println(transactionsTable.getSelectionModel().getSelectedItem().toString());
     }
-
-    public void onHelloButtonClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/hello.fxml"));
-            Parent helloView = loader.load();
-
-            Stage stage = (Stage) mainContainer.getScene().getWindow();
-
-            stage.setScene(new Scene(helloView));
-
-            HelloController controller = loader.getController();
-        } catch (IOException e) {
-            System.out.println("Hello view load unsuccessful");
+    @FXML
+    private void handleToolBarAction(ActionEvent event){
+        Button clickedButton = (Button) event.getSource();
+        String buttonLabel = clickedButton.getId();
+        if(buttonLabel.equals("home")){
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/hello-view.fxml"));
+            switcher.switchTo("/com/app/demo/hello-view.fxml");
+        } else {
+            System.out.println("Switcher is not initialized!");
         }
     }
 
-    public void onReportButtonClick(ActionEvent event) {
-    }
 
 }

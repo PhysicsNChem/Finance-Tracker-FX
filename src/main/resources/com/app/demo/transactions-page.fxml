@@ -20,8 +20,8 @@
     <ToolBar layoutX="4.0" layoutY="6.0" prefHeight="40.0" prefWidth="1277.0">
         <items>
             <Region prefHeight="30.0" prefWidth="200.0" />
-            <Button onAction="#onHelloButtonClick" text="Home" />
-            <Button mnemonicParsing="false" onAction="#onReportButtonClick" onTouchPressed="#onReportButtonClick" text="Reports">
+            <Button fx:id = "home" text="Home" onAction="#handleToolBarAction" />
+            <Button fx:id = "reports" mnemonicParsing="false"  text="Reports" onAction="#handleToolBarAction">
                 <cursor>
                     <Cursor fx:constant="HAND" />
                 </cursor>

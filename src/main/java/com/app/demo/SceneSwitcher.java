@@ -17,8 +17,8 @@ public class SceneSwitcher {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
             Scene scene = new Scene(root);
-            stage.setMinWidth(1067);
-            stage.setMinHeight(600);
+            stage.setMinWidth(1280);
+            stage.setMinHeight(720);
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {

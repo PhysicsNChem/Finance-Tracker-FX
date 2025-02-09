@@ -6,11 +6,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 
 public class HelloApplication extends Application {
+    public Stage primaryStage;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
+        this.primaryStage = primaryStage;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/hello-view.fxml"));
         Scene scene = new Scene(loader.load());
 
@@ -23,8 +25,8 @@ public class HelloApplication extends Application {
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(1067);
         primaryStage.setMinHeight(600);
-        primaryStage.setWidth(1067);
-        primaryStage.setHeight(600);
+        primaryStage.setWidth(1280);
+        primaryStage.setHeight(720);
         primaryStage.show();
     }
 

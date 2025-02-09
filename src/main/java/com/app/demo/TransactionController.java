@@ -8,12 +8,16 @@ import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.input.*;
 import javafx.beans.binding.Bindings;
 import javafx.application.Platform;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -42,9 +46,6 @@ public class TransactionController {
     public String payer;
     private String date;
 
-    public void setSceneSwitcher(SceneSwitcher switcher) {
-        this.switcher = switcher;
-    }
 
     @FXML
     private TableView<Transaction> transactionsTable;
@@ -63,13 +64,13 @@ public class TransactionController {
     @FXML
     private TableColumn<Transaction, String> payerColumn;
     @FXML
-    private TableColumn<Transaction, Void> actionColumn;
-    @FXML
     private Label totalBalanceLabel;
     @FXML
     private Button updateButton;
     @FXML
     private Button removeButton;
+    @FXML
+    private Button addTransactionButton;
 
     private ObservableList<Transaction> transactionList = FXCollections.observableArrayList();
     private FilteredList<Transaction> filteredTransactionList = new FilteredList<>(transactionList);
@@ -80,6 +81,9 @@ public class TransactionController {
     public void initialize() {
         updateButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
         removeButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
+        addTransactionButton.disableProperty().bind(Bindings.createBooleanBinding(() ->
+                        "Main view".equals(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue()),
+                assetsLiabilitiesTreeView.getSelectionModel().selectedItemProperty()));
         emptyLabel = new Label("No transactions available. Click or tap 'Add Transaction' to get started!");
         sourceColumn.setCellValueFactory(new PropertyValueFactory<>("source"));
         incomeExpenseColumn.setCellValueFactory(new PropertyValueFactory<>("incomeExpense"));
@@ -282,14 +286,14 @@ public class TransactionController {
 
         Optional<ButtonType> result = dialog.showAndWait();
 
-        if (result.isPresent() && result.get() == addButtonType) {
+        if (result.isPresent() && result.get() == addButtonType && !assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue().equals("Main view")) {
             try {
                 amount = Double.parseDouble(amountField.getText());
                 if (amount <= 0) {
                     System.out.println("Invalid amount entered");
                     Alert alert = new Alert(Alert.AlertType.WARNING);
                     alert.setTitle("Error");
-                    alert.setContentText("Enter a non-zero value within the 64-bit limit, please.");
+                    alert.setContentText("Enter a non-zero value within the 64-bit flimit, please.");
                     alert.showAndWait();
                     return;
                 }
@@ -553,9 +557,26 @@ public class TransactionController {
     }
     @FXML
     private void onCopyTransaction(ActionEvent event) {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent tr = new ClipboardContent();
+        tr.putString(transactionsTable.getSelectionModel().getSelectedItem().toString());
+        clipboard.setContent(tr);
+        System.out.println(transactionsTable.getSelectionModel().getSelectedItem().toString());
     }
 
     public void onHelloButtonClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/hello.fxml"));
+            Parent helloView = loader.load();
+
+            Stage stage = (Stage) mainContainer.getScene().getWindow();
+
+            stage.setScene(new Scene(helloView));
+
+            HelloController controller = loader.getController();
+        } catch (IOException e) {
+            System.out.println("Hello view load unsuccessful");
+        }
     }
 
     public void onReportButtonClick(ActionEvent event) {

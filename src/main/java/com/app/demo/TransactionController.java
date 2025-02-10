@@ -28,7 +28,6 @@ import java.util.*;
 public class TransactionController {
     @FXML
     public Button home;
-    private SceneSwitcher switcher;
     private Category categoryValue;
     private String selectedAssetLiabilityName;
     @FXML
@@ -80,14 +79,7 @@ public class TransactionController {
     private DoubleProperty totalBalance = new SimpleDoubleProperty(0);
     private ObservableList<Category> categories = FXCollections.observableArrayList();
 
-    public void setSceneSwitcher(SceneSwitcher switcher) {
-        if(switcher != null){
-            this.switcher = switcher;
-            System.out.println("Switcher is initialized!");
-        } else {
-            System.out.println("Switcher is not initialized!");
-        }
-    }
+
     @FXML
     public void initialize() {
         initializeTreeView();
@@ -585,11 +577,8 @@ public class TransactionController {
     private void handleToolBarAction(ActionEvent event){
         Button clickedButton = (Button) event.getSource();
         String buttonLabel = clickedButton.getId();
-        if(buttonLabel.equals("home")){
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/hello-view.fxml"));
-            switcher.switchTo("/com/app/demo/hello-view.fxml");
-        } else {
-            System.out.println("Switcher is not initialized!");
+        if(buttonLabel.equals("home")) {
+            HelloApplication.loadHomePage();
         }
     }
 

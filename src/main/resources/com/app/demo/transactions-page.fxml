@@ -19,23 +19,23 @@
 <AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.TransactionController">
     <ToolBar layoutX="4.0" layoutY="6.0" prefHeight="40.0" prefWidth="1277.0">
         <items>
-            <Region prefHeight="30.0" prefWidth="200.0" />
-            <Button fx:id = "home" text="Home" onAction="#handleToolBarAction" />
-            <Button fx:id = "reports" mnemonicParsing="false"  text="Reports" onAction="#handleToolBarAction">
+            <Button fx:id="home" onAction="#handleToolBarAction" text="Home" />
+            <Button fx:id="reports" mnemonicParsing="false" onAction="#handleToolBarAction" text="Reports">
                 <cursor>
                     <Cursor fx:constant="HAND" />
                 </cursor>
                </Button>
-            <Region />
             <Button mnemonicParsing="false" text="Transactions">
                 <cursor>
                     <Cursor fx:constant="HAND" />
                 </cursor></Button>
+            <Region prefHeight="30.0" prefWidth="200.0" />
+            <Region />
         </items>
     </ToolBar>
     <TextField fx:id="searchField" layoutX="20.0" layoutY="68.0" promptText="Search transactions..." />
     <ComboBox fx:id="categoryFilterComboBox" layoutX="320.0" layoutY="136.0" promptText="All categories" />
-    <Button  fx:id ="addTransactionButton" layoutX="702.0" layoutY="136.0" mnemonicParsing="false" onAction="#onAddTransaction" text="Add transaction">
+    <Button fx:id="addTransactionButton" layoutX="650.0" layoutY="136.0" mnemonicParsing="false" onAction="#onAddTransaction" text="Add transaction">
         <cursor>
             <Cursor fx:constant="HAND" />
         </cursor>
@@ -44,8 +44,13 @@
 
     <AnchorPane layoutY="172.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="172.0">
         <TreeView fx:id="assetsLiabilitiesTreeView" prefHeight="200.0" prefWidth="200.0">
-
-        </TreeView>
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem mnemonicParsing="false" text="Delete account" />
+              </items>
+            </ContextMenu>
+         </contextMenu></TreeView>
         <Button layoutY="220.0" mnemonicParsing="false" onAction="#onAddAsset" text="Add Asset" />
         <Button layoutY="260.0" mnemonicParsing="false" onAction="#onAddLiability" text="Add Liability" />
     </AnchorPane>
@@ -82,6 +87,11 @@
             <Button layoutY="140.0" mnemonicParsing="false" onAction="#onSaveTransaction" text="Save transactions" />
         </AnchorPane>
     </AnchorPane>
+   <Button fx:id="addTransactionButton1" layoutX="763.0" layoutY="136.0" mnemonicParsing="false" onAction="#onAddTransaction" text="Transfer money">
+      <cursor>
+         <Cursor fx:constant="HAND" />
+      </cursor>
+   </Button>
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>

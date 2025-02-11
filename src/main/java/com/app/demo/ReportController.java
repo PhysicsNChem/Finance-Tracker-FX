@@ -8,4 +8,8 @@ public class ReportController {
     public void setSceneSwitcher(SceneSwitcher switcher) {
         this.switcher = switcher;
     }
+    @FXML
+    private void handleToolBarAction(){
+
+    }
 }

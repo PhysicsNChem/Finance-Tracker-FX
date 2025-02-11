@@ -16,7 +16,6 @@
     </padding>
    <ToolBar prefHeight="40.0" prefWidth="200.0">
      <items>
-         <Region prefHeight="30.0" prefWidth="200.0" />
           <Button onAction="#onHelloButtonClick" text="Home" />
        <Button mnemonicParsing="false" onAction="#onReportButtonClick" onTouchPressed="#onReportButtonClick" text="Reports">
             <cursor>
@@ -29,7 +28,9 @@
             <cursor>
                <Cursor fx:constant="HAND" />
             </cursor></Button>
+         <Region prefHeight="30.0" prefWidth="200.0" />
          <Region />
+         <Button contentDisplay="CENTER" mnemonicParsing="false" text="Help" />
      </items>
    </ToolBar>
    <PieChart title="Your balance" />

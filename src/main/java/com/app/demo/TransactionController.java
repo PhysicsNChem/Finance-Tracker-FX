@@ -88,7 +88,7 @@ public class TransactionController {
         addTransactionButton.disableProperty().bind(Bindings.createBooleanBinding(() ->
                         "Main view".equals(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue()),
                 assetsLiabilitiesTreeView.getSelectionModel().selectedItemProperty()));
-        emptyLabel = new Label("No transactions available. Click or tap 'Add Asset' or 'Add Liability' to get started!");
+        emptyLabel = new Label("No transactions available. Click or tap 'Help' for more information.");
         sourceColumn.setCellValueFactory(new PropertyValueFactory<>("source"));
         incomeExpenseColumn.setCellValueFactory(new PropertyValueFactory<>("incomeExpense"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
@@ -170,14 +170,18 @@ public class TransactionController {
         TreeItem<String> assetsItem = new TreeItem<>("Assets");
         TreeItem<String> liabilitiesItem = new TreeItem<>("Liabilities");
 
-        List<String> assetLiabilityTypes = TransactionDAO.getAssetLiabilityTypes("Asset");
-        for (String assetType : assetLiabilityTypes) {
-            assetsItem.getChildren().add(new TreeItem<>(assetType));
+        List<Account> assetLiabilityTypes = TransactionDAO.getAssetLiabilityTypes();
+        for (Account assetType: assetLiabilityTypes) {
+            if(assetType.getType().equals("Asset")) {
+                assetsItem.getChildren().add(new TreeItem<>(assetType.getName()));
+            }
         }
 
-        List<String> liabilityTypes = TransactionDAO.getAssetLiabilityTypes("Liability");
-        for (String liabilityType : liabilityTypes) {
-            liabilitiesItem.getChildren().add(new TreeItem<>(liabilityType));
+        List<Account> liabilityTypes = TransactionDAO.getAssetLiabilityTypes();
+        for (Account liabilityType : liabilityTypes) {
+            if(liabilityType.getType().equals("Liability")) {
+                liabilitiesItem.getChildren().add(new TreeItem<>(liabilityType.getName()));
+            }
         }
 
         rootItem.getChildren().addAll(mainPageItem, assetsItem, liabilitiesItem);
@@ -391,7 +395,8 @@ public class TransactionController {
                 if (assetsNode != null) {
                     assetsNode.getChildren().add(new TreeItem<>(assetName));
                     assetsNode.setExpanded(true);
-                    TransactionDAO.insertAssetLiabilityType(assetName, "Asset");
+                    Account account = new Account(assetName, "Asset", assetTypeComboBox.getValue());
+                    TransactionDAO.insertAssetLiabilityType(account);
                 }
             }
         }
@@ -409,12 +414,16 @@ public class TransactionController {
         TextField liabilityNameField = new TextField();
         liabilityNameField.setPromptText("Enter liability name");
 
+        ComboBox<String> liabilityTypeComboBox = new ComboBox<>();
+        liabilityTypeComboBox.getItems().addAll("Credit Card", "Mortgage", "Loans", "Others");
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setMaxWidth(Double.MAX_VALUE);
         grid.add(new Label("Liability Name:"), 0, 0);
         grid.add(liabilityNameField, 1, 0);
+        grid.add(new Label("Liability Type:"), 0, 1);
+        grid.add(liabilityTypeComboBox, 1, 1);
 
         dialog.getDialogPane().setContent(grid);
         Platform.runLater(liabilityNameField::requestFocus);
@@ -431,6 +440,8 @@ public class TransactionController {
                 if (liabilitiesNode != null) {
                     liabilitiesNode.getChildren().add(new TreeItem<>(liabilityName));
                     liabilitiesNode.setExpanded(true);
+                    Account account = new Account(liabilityName, "Liability", liabilityTypeComboBox.getValue());
+                    TransactionDAO.insertAssetLiabilityType(account);
                 }
             }
         }
@@ -549,6 +560,9 @@ public class TransactionController {
             TransactionDAO.deleteTransaction(transaction);
         }
         System.out.println("Remove Transaction button clicked");
+    }
+    private void onRemoveAccount(ActionEvent event) {
+        // Handle Remove Account button click
     }
 
     private void updateTotalBalance(String incomeExpense, double amount) {

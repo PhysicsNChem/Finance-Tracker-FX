@@ -29,6 +29,7 @@ public class HelloApplication extends Application {
 
         switcher.preloadScene("transactions", "/com/app/demo/transactions-page.fxml");
         switcher.preloadScene("reports", "/com/app/demo/reports-page.fxml");
+        switcher.preloadScene("help", "/com/app/demo/help-view.fxml");
 
 
 

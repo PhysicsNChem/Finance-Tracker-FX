@@ -33,7 +33,8 @@ public class DatabaseManager {
         String createAssetLiabilityTypesTable = "CREATE TABLE IF NOT EXISTS asset_liability_types (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "name TEXT NOT NULL," +
-                "type TEXT NOT NULL" +
+                "type TEXT NOT NULL," +
+                "subType TEXT NOT NULL" +
                 ");";
 
         try (Connection conn = connect();

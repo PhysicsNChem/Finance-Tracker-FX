@@ -35,6 +35,12 @@ public class HelloController {
         }
     }
     public void onReportButtonClick(ActionEvent actionEvent) {
-        welcomeText.setText("Reports");
+        try{
+            switcher.switchToPreloaded("reports");
+        } catch (Exception e) {
+            SceneSwitcher s = new SceneSwitcher(HelloApplication.primaryStage);
+            s.preloadScene("reports", "/com/app/demo/reports-page.fxml");
+            s.switchToPreloaded("reports");
+        }
     }
 }

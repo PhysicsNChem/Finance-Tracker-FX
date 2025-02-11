@@ -85,40 +85,38 @@ public class TransactionDAO {
             System.out.println(e.getMessage());
         }
     }
-    public static void insertAssetLiabilityType(String name, String type){
-        String sql = "INSERT INTO asset_liability_types(name, type) VALUES(?,?)";
+    public static void insertAssetLiabilityType(Account account){
+        String sql = "INSERT INTO asset_liability_types(name, type, subType) VALUES(?,?,?)";
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, name);
-            pstmt.setString(2, type);
+            pstmt.setString(1, account.getName());
+            pstmt.setString(2, account.getType());
+            pstmt.setString(3, account.getSubType());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
-    public static List<String> getAssetLiabilityTypes(String type){
-        List<String> assetLiabilityTypes = new ArrayList<>();
-        String sql = "SELECT name FROM asset_liability_types WHERE type = ?";
-
+    public static List<Account> getAssetLiabilityTypes(){
+        List<Account> assetLiabilityTypes = new ArrayList<>();
+        String sql = "SELECT * FROM asset_liability_types";
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, type);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                assetLiabilityTypes.add(rs.getString("name"));
+                Account account = new Account(rs.getString("name"), rs.getString("type"), rs.getString("subType"));
+                assetLiabilityTypes.add(account);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         return assetLiabilityTypes;
     }
-    public static void deleteAssetLiabilityType(String name, String type){
+    public static void deleteAssetLiabilityType(Account account){
         String sql = "DELETE FROM asset_liability_types WHERE name = ? AND type = ?";
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, name);
-            pstmt.setString(2, type);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());

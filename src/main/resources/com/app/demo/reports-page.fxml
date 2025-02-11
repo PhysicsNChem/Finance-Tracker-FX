@@ -5,10 +5,26 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.app.demo.ReportController"
             prefHeight="800.0" prefWidth="600.0">
-
+    <ToolBar layoutX="4.0" layoutY="6.0" prefHeight="40.0" prefWidth="1277.0">
+        <items>
+            <Button fx:id="home" onAction="#handleToolBarAction" text="Home" />
+            <Button fx:id="reports" mnemonicParsing="false" onAction="#handleToolBarAction" text="Reports">
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
+            <Button mnemonicParsing="false" text="Transactions">
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor></Button>
+            <Region prefHeight="30.0" prefWidth="200.0" />
+            <Region />
+        </items>
+    </ToolBar>
 </AnchorPane>

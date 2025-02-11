@@ -26,11 +26,12 @@ public class HelloController {
     }
 
     public void onTransactionButtonClick(ActionEvent actionEvent) {
-        if (switcher != null) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/app/demo/transactions-page.fxml"));
-            switcher.switchTo("/com/app/demo/transactions-page.fxml");
-        } else {
-            System.out.println("Switcher is not initialized!");
+        try{
+            switcher.switchToPreloaded("transactions");
+        } catch (Exception e) {
+            SceneSwitcher s = new SceneSwitcher(HelloApplication.primaryStage);
+            s.preloadScene("transactions", "/com/app/demo/transactions-page.fxml");
+            s.switchToPreloaded("transactions");
         }
     }
     public void onReportButtonClick(ActionEvent actionEvent) {

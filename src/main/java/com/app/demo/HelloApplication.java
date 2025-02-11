@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 public class HelloApplication extends Application {
 
-    private static Stage primaryStage;
+    public static Stage primaryStage;
     private static FXMLLoader loader;
 
     @Override

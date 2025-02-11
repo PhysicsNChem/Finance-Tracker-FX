@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.HelloController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
    <ToolBar prefHeight="40.0" prefWidth="200.0">
      <items>
+         <Region prefHeight="30.0" prefWidth="140.0" />
           <Button onAction="#onHelloButtonClick" text="Home" />
        <Button mnemonicParsing="false" onAction="#onReportButtonClick" onTouchPressed="#onReportButtonClick" text="Reports">
             <cursor>
@@ -28,9 +26,11 @@
             <cursor>
                <Cursor fx:constant="HAND" />
             </cursor></Button>
-         <Region prefHeight="30.0" prefWidth="200.0" />
-         <Region />
-         <Button contentDisplay="CENTER" mnemonicParsing="false" text="Help" />
+         <Region prefHeight="30.0" prefWidth="60.0" />
+         <Button contentDisplay="CENTER" mnemonicParsing="false" text="Help">
+            <tooltip>
+               <Tooltip text="Information on the use of FBLA Project" />
+            </tooltip></Button>
      </items>
    </ToolBar>
    <PieChart title="Your balance" />

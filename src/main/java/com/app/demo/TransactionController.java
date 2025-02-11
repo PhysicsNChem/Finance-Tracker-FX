@@ -268,7 +268,7 @@ public class TransactionController {
         incomeExpense.setValue("Expense");
         ComboBox<Category> categoryComboBox = new ComboBox<>(filterCategories(incomeExpense.getValue()));
         DatePicker datePicker = new DatePicker();
-        datePicker.setValue(java.time.LocalDate.now());
+        datePicker.setValue(LocalDate.now());
         TextField descriptionField = new TextField();
 
         GridPane grid = new GridPane();
@@ -591,8 +591,12 @@ public class TransactionController {
     private void handleToolBarAction(ActionEvent event){
         Button clickedButton = (Button) event.getSource();
         String buttonLabel = clickedButton.getId();
-        if(buttonLabel.equals("home")) {
-            HelloApplication.loadHomePage();
+        switch (buttonLabel){
+            case "home" -> HelloApplication.loadHomePage();
+            case "reports" -> {
+                SceneSwitcher switcher = new SceneSwitcher(HelloApplication.primaryStage);
+                switcher.switchTo("/com/app/demo/reports-page.fxml");
+            }
         }
     }
 

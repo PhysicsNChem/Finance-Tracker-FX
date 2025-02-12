@@ -9,10 +9,12 @@ import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.print.*;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.input.*;
@@ -28,6 +30,8 @@ import java.util.*;
 public class TransactionController {
     @FXML
     public Button home;
+    @FXML
+    public Button TransferMoney;
     private Category categoryValue;
     private String selectedAssetLiabilityName;
     @FXML
@@ -354,7 +358,15 @@ public class TransactionController {
 
     @FXML
     private void onSaveTransaction(ActionEvent event) {
-        // Handle Save transactions button click
+        // Handle Print transactions button click
+        PrinterJob printerJob = PrinterJob.createPrinterJob();
+        boolean printDialog = printerJob.showPrintDialog(mainContainer.getScene().getWindow());
+        if (printDialog) {
+            boolean success = printerJob.printPage(mainContainer);
+            if (success) {
+                printerJob.endJob();
+            }
+        }
     }
 
     @FXML

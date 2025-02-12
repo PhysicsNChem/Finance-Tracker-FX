@@ -92,7 +92,7 @@
             <Button layoutY="140.0" mnemonicParsing="false" onAction="#onSaveTransaction" text="Print transactions" />
         </AnchorPane>
     </AnchorPane>
-   <Button fx:id="addTransactionButton1" layoutX="763.0" layoutY="136.0" mnemonicParsing="false" onAction="#onAddTransaction" text="Transfer money">
+   <Button fx:id="TransferMoney" layoutX="763.0" layoutY="136.0" mnemonicParsing="false" onAction="#onAddTransaction" text="Transfer money">
       <cursor>
          <Cursor fx:constant="HAND" />
       </cursor>

@@ -116,6 +116,7 @@ public class TransactionController {
                 }
             }
         });
+        // Disable the update button if no transaction is selected
         updateButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
 
         filteredTransactionList = new FilteredList<>(transactionList, p -> true);
@@ -140,6 +141,7 @@ public class TransactionController {
     }
 
     private void loadTransactionsFromDatabase() {
+        // Load transactions from the SQLite database
         List<Transaction> transactions = TransactionDAO.getTransactions();
         transactionList.setAll(transactions);
         transactionsTable.setItems(transactionList);
@@ -274,7 +276,7 @@ public class TransactionController {
         DatePicker datePicker = new DatePicker();
         datePicker.setValue(LocalDate.now());
         TextField descriptionField = new TextField();
-
+        //Create formatting for the dialog box and put the fields in a grid
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);

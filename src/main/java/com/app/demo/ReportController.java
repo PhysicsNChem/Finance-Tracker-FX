@@ -1,9 +1,15 @@
 package com.app.demo;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.scene.Scene;
+
+import java.text.*;
+import java.text.NumberFormat;
 import java.time.*;
 import javafx.scene.control.*;
 import javafx.stage.Popup;
@@ -18,8 +24,15 @@ public class ReportController extends ComboBox<Object> {
     public Button transactions;
     @FXML
     public ComboBox<Object> dateComboBox;
+    @FXML
+    public Label incomeLabel;
+    @FXML
+    public Label expenseLabel;
     private SceneSwitcher switcher;
+    //Sentinel value for custom date
     private static final String CUSTOM_DATE = "Custom date...";
+    private DoubleProperty relIncome = new SimpleDoubleProperty(0);
+    private DoubleProperty relExpenses = new SimpleDoubleProperty(0);
 
     public void setSceneSwitcher(SceneSwitcher switcher) {
         this.switcher = switcher;
@@ -31,8 +44,8 @@ public class ReportController extends ComboBox<Object> {
         dateComboBox.getItems().addAll(
                 "today",
                 "yesterday",
-                "this week",
-                "the past week",
+                "the start of the week",
+                "the past seven days",
                 "this month",
                 "the past month",
                 "this year to date",
@@ -107,6 +120,30 @@ public class ReportController extends ComboBox<Object> {
 
            }
         });
+        //binds the income and expense labels to the respective properties
+        relIncome.set(compileIncome());
+        incomeLabel.textProperty().bind(Bindings.createStringBinding(() -> NumberFormat.getCurrencyInstance().format(relIncome.get()), relIncome));
+        //As the expenses are negative, the absolute value is used
+        relExpenses.set(Math.abs(compileExpenses()));
+        expenseLabel.textProperty().bind(Bindings.createStringBinding(() -> NumberFormat.getCurrencyInstance().format(relExpenses.get()), relExpenses));
+    }
+    public double compileIncome(){
+        double happy = 0; //happy is the total income, it makes a greedy person happy
+        for (Transaction transaction : TransactionDAO.getTransactions()) {
+            if (transaction.getIncomeExpense().equals("Income")) {
+                happy += transaction.getAmount();
+            }
+        }
+        return happy;
+    }
+    public double compileExpenses(){
+        double sad = 0; //sad is the total expenses, it makes a sad person sad
+        for (Transaction transaction : TransactionDAO.getTransactions()) {
+            if (transaction.getIncomeExpense().equals("Expense")) {
+                sad += transaction.getAmount();
+            }
+        }
+        return sad;
     }
 
         @FXML

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.TransactionController">
+    <ToolBar layoutX="4.0" layoutY="6.0" prefHeight="40.0" prefWidth="1277.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="40.0">
+        <items>
+            <Region prefHeight="30.0" prefWidth="200.0" />
+            <Button fx:id="home" onAction="#handleToolBarAction" text="Home" />
+            <Button fx:id="reports" mnemonicParsing="false" onAction="#handleToolBarAction" text="Reports">
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+               </Button>
+            <Button mnemonicParsing="false" text="Transactions">
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor></Button>
+            <Region prefHeight="30.0" prefWidth="91.0" />
+         <Button mnemonicParsing="false" text="Help">
+            <tooltip>
+               <Tooltip text="Information on the use of FBLA Project" />
+            </tooltip>
+         </Button>
+        </items>
+    </ToolBar>
+    <TextField fx:id="searchField" layoutX="20.0" layoutY="68.0" promptText="Search transactions..." />
+    <ComboBox fx:id="categoryFilterComboBox" layoutX="320.0" layoutY="136.0" promptText="All categories" />
+    <Button fx:id="addTransactionButton" layoutX="650.0" layoutY="136.0" mnemonicParsing="false" onAction="#onAddTransaction" text="Add transaction">
+        <cursor>
+            <Cursor fx:constant="HAND" />
+        </cursor>
+    </Button>
+    <Label fx:id="totalBalanceLabel" layoutX="20.0" layoutY="140.0" text="Total balance: 0.00" />
+
+    <AnchorPane layoutY="172.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="172.0">
+        <TreeView fx:id="assetsLiabilitiesTreeView" prefHeight="200.0" prefWidth="200.0">
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem mnemonicParsing="false" text="Delete account" />
+              </items>
+            </ContextMenu>
+         </contextMenu></TreeView>
+        <Button layoutY="220.0" mnemonicParsing="false" onAction="#onAddAsset" text="Add Asset" />
+        <Button layoutY="260.0" mnemonicParsing="false" onAction="#onAddLiability" text="Add Liability" />
+    </AnchorPane>
+   <Label fx:id="viewLabel" layoutX="320.0" layoutY="94.0" text="Transactions → Main view" />
+
+    <AnchorPane fx:id="mainContainer" layoutX="273.0" layoutY="154.0" prefHeight="359.0" prefWidth="914.0" AnchorPane.bottomAnchor="46.799999999999955" AnchorPane.leftAnchor="273.0" AnchorPane.rightAnchor="67.79999999999995" AnchorPane.topAnchor="154.0">
+        <TableView fx:id="transactionsTable" prefHeight="320.0" prefWidth="614.0">
+            <columns>
+                <TableColumn fx:id="sourceColumn" prefWidth="92.0" text="Account" />
+                <TableColumn fx:id="amountColumn" prefWidth="75.0" text="Amount" />
+                <TableColumn fx:id="categoryColumn" prefWidth="92.0" text="Category" />
+                <TableColumn fx:id="payerColumn" prefWidth="120.8" text="Payer/Recipient" />
+                <TableColumn fx:id="incomeExpenseColumn" prefWidth="120.8" text="Income/Expense" />
+                <TableColumn fx:id="descriptionColumn" prefWidth="120.8" text="Description" />
+                <TableColumn fx:id="dateColumn" prefWidth="109.6" text="Date" />
+            </columns>
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem accelerator="Ctrl+W" mnemonicParsing="false" onAction="#onUpdateTransaction" text="Update Transaction" />
+                <MenuItem accelerator="Delete" mnemonicParsing="false" onAction="#onRemoveTransaction" text="Remove Transaction" />
+                  <MenuItem accelerator="Ctrl+C" mnemonicParsing="false" onAction="#onCopyTransaction" text="Copy Transaction to clipboard" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
+        </TableView>
+
+        <AnchorPane layoutX="625.0" layoutY="-25.0" prefHeight="320.0" prefWidth="150.0">
+            <HBox layoutY="60.0" spacing="10.0">
+                <Button fx:id="updateButton" mnemonicParsing="false" onAction="#onUpdateTransaction" text="Update transaction" />
+                <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveTransaction" text="Remove transaction" />
+            </HBox>
+            <Button layoutY="140.0" mnemonicParsing="false" onAction="#onSaveTransaction" text="Print transactions" />
+        </AnchorPane>
+    </AnchorPane>
+   <Button fx:id="TransferMoney" layoutX="763.0" layoutY="136.0" mnemonicParsing="false" onAction="#onAddTransaction" text="Transfer money">
+      <cursor>
+         <Cursor fx:constant="HAND" />
+      </cursor>
+   </Button>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+</AnchorPane>

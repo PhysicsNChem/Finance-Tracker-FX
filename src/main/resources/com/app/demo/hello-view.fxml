@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Region?>
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.HelloController">
+   <ToolBar prefHeight="40.0" prefWidth="200.0">
+     <items>
+         <Region prefHeight="30.0" prefWidth="140.0" />
+          <Button onAction="#onHelloButtonClick" text="Home" />
+       <Button mnemonicParsing="false" onAction="#onReportButtonClick" onTouchPressed="#onReportButtonClick" text="Reports">
+            <cursor>
+               <Cursor fx:constant="HAND" />
+            </cursor>
+            <font>
+               <Font name="Segoe UI Variable Static Display" size="12.0" />
+            </font></Button>
+         <Button mnemonicParsing="false" onAction="#onTransactionButtonClick" onTouchPressed="#onTransactionButtonClick" text="Transactions">
+            <cursor>
+               <Cursor fx:constant="HAND" />
+            </cursor></Button>
+         <Region prefHeight="30.0" prefWidth="60.0" />
+         <Button contentDisplay="CENTER" mnemonicParsing="false" text="Help" onAction="#onHelpButtonClick">
+            <tooltip>
+               <Tooltip fx:id ="helpToolTip" text="Information on the use of FBLA Project"/>
+            </tooltip>
+         </Button>
+     </items>
+   </ToolBar>
+   <PieChart title="Your balance" />
+
+    <Label fx:id="welcomeText" />
+</VBox>

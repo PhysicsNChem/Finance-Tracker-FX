@@ -54,12 +54,12 @@ public class HelloApplication extends Application {
             Parent root = loader.load();
             primaryStage.getScene().setRoot(root);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error loading home page: " + e.getMessage());
         }
     }
 
 
     public static void main(String[] args) {
-        launch();
+        launch(HelloApplication.class, args);
     }
 }

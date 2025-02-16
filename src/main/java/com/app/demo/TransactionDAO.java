@@ -114,7 +114,7 @@ public class TransactionDAO {
         return assetLiabilityTypes;
     }
     public static void deleteAssetLiabilityType(Account account){
-        String sql = "DELETE FROM asset_liability_types WHERE name = ? AND type = ?";
+        String sql = "DELETE FROM asset_liability_types WHERE name = ? AND type = ? AND subType = ?";
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.executeUpdate();

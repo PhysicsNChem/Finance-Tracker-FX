@@ -121,7 +121,7 @@ public class TransactionController {
         filteredTransactionList = new FilteredList<>(transactionList, p -> true);
 
         transactionsTable.setItems(filteredTransactionList);
-        transactionsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        transactionsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         transactionsTable.setPlaceholder(emptyLabel);
 
         totalBalanceLabel.textProperty().bind(Bindings.format("Total Balance: %s", Bindings.createStringBinding(() ->
@@ -175,25 +175,46 @@ public class TransactionController {
         TreeItem<String> assetsItem = new TreeItem<>("Assets");
         TreeItem<String> liabilitiesItem = new TreeItem<>("Liabilities");
 
+        // Group assets by subtype
+        Map<String, List<Account>> assetsBySubtype = new HashMap<>();
         List<Account> assetLiabilityTypes = TransactionDAO.getAssetLiabilityTypes();
-        for (Account assetType: assetLiabilityTypes) {
-            if(assetType.getType().equals("Asset")) {
-                assetsItem.getChildren().add(new TreeItem<>(assetType.getName()));
+        for (Account assetType : assetLiabilityTypes) {
+            if (assetType.getType().equals("Asset")) {
+                assetsBySubtype.computeIfAbsent(assetType.getSubType(), k -> new ArrayList<>()).add(assetType);
             }
         }
 
+        // Add subtypes to the tree
+        for (Map.Entry<String, List<Account>> entry : assetsBySubtype.entrySet()) {
+            TreeItem<String> subtypeItem = new TreeItem<>(entry.getKey());
+            subtypeItem.setExpanded(true); // Expand the subtype view by default
+            for (Account asset : entry.getValue()) {
+                subtypeItem.getChildren().add(new TreeItem<>(asset.getName()));
+            }
+            assetsItem.getChildren().add(subtypeItem);
+        }
+
+        Map <String, List<Account>> liabilitiesBySubtype = new HashMap<>();
         List<Account> liabilityTypes = TransactionDAO.getAssetLiabilityTypes();
         for (Account liabilityType : liabilityTypes) {
-            if(liabilityType.getType().equals("Liability")) {
-                liabilitiesItem.getChildren().add(new TreeItem<>(liabilityType.getName()));
+            if (liabilityType.getType().equals("Liability")) {
+                liabilitiesBySubtype.computeIfAbsent(liabilityType.getSubType(), k -> new ArrayList<>()).add(liabilityType);
             }
         }
-
+            for (Map.Entry<String, List<Account>> entry : liabilitiesBySubtype.entrySet()) {
+                TreeItem<String> subtypeItem = new TreeItem<>(entry.getKey());
+                subtypeItem.setExpanded(true); // Expand the subtype view by default
+                for (Account liability : entry.getValue()) {
+                    subtypeItem.getChildren().add(new TreeItem<>(liability.getName()));
+                }
+                liabilitiesItem.getChildren().add(subtypeItem);
+            }
+        // Add the main page and accounts to the root
         rootItem.getChildren().addAll(mainPageItem, assetsItem, liabilitiesItem);
         assetsItem.setExpanded(true);
         liabilitiesItem.setExpanded(true);
         assetsLiabilitiesTreeView.setRoot(rootItem);
-        //Root pane is only included for organizational purposes
+        // Root pane is only included for organizational purposes
         assetsLiabilitiesTreeView.setShowRoot(false);
         assetsLiabilitiesTreeView.getSelectionModel().select(mainPageItem);
 
@@ -401,7 +422,7 @@ public class TransactionController {
         TextField assetNameField = new TextField();
         assetNameField.setPromptText("Enter asset name");
         ComboBox<String> assetTypeComboBox = new ComboBox<>();
-        assetTypeComboBox.getItems().addAll("Chequing Account", "Savings Account", "Brokerage", "Properties", "Others");
+        assetTypeComboBox.getItems().addAll("Chequing accounts", "Savings accounts", "Brokerages", "Properties", "Other assets");
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -419,18 +440,41 @@ public class TransactionController {
 
         if (result.isPresent() && result.get() == addButtonType) {
             String assetName = assetNameField.getText();
-            if (assetName != null && !assetName.trim().isEmpty()) {
+            String assetSubType = assetTypeComboBox.getValue();
+
+
+
+            //Validate user input
+            if(assetName == null || assetName.trim().isEmpty() || assetSubType == null) {
+                System.out.println("Invalid asset details");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setContentText("Please enter valid asset details.");
+                alert.showAndWait();
+            }
+            //Check if a duplicate account with the same name and subtype already exists
+            if (assetName != null && !assetName.trim().isEmpty() && assetSubType != null && !checkDupes(assetName, assetSubType)) {
                 TreeItem<String> assetsNode = assetsLiabilitiesTreeView.getRoot().getChildren().stream()
                         .filter(item -> "Assets".equals(item.getValue()))
                         .findFirst()
                         .orElse(null);
                 if (assetsNode != null) {
-                    assetsNode.getChildren().add(new TreeItem<>(assetName));
-                    assetsNode.setExpanded(true);
-                    Account account = new Account(assetName, "Asset", assetTypeComboBox.getValue());
+                    TreeItem<String> subtypeNode = assetsNode.getChildren().stream()
+                            .filter(item -> assetSubType.equals(item.getValue()))
+                            .findFirst()
+                            .orElseGet(() -> {
+                                TreeItem<String> newSubtypeNode = new TreeItem<>(assetSubType);
+                                assetsNode.getChildren().add(newSubtypeNode);
+                                return newSubtypeNode;
+                            });
+                    subtypeNode.getChildren().add(new TreeItem<>(assetName));
+                    subtypeNode.setExpanded(true);
+                    Account account = new Account(assetName, "Asset", assetSubType);
                     TransactionDAO.insertAssetLiabilityType(account);
                 }
             }
+
+
         }
     }
 
@@ -447,7 +491,8 @@ public class TransactionController {
         liabilityNameField.setPromptText("Enter liability name");
 
         ComboBox<String> liabilityTypeComboBox = new ComboBox<>();
-        liabilityTypeComboBox.getItems().addAll("Credit Card", "Mortgage", "Loans", "Others");
+        liabilityTypeComboBox.getItems().addAll("Credit cards", "Mortgages", "Other loans", "Other liabilities");
+
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -464,17 +509,33 @@ public class TransactionController {
 
         if (result.isPresent() && result.get() == addButtonType) {
             String liabilityName = liabilityNameField.getText();
-            if (liabilityName != null && !liabilityName.trim().isEmpty()) {
+            String liabilitySubType = liabilityTypeComboBox.getValue();
+            if (liabilityName != null && !liabilityName.trim().isEmpty() && liabilitySubType != null && !checkDupes(liabilityName, liabilitySubType)) {
                 TreeItem<String> liabilitiesNode = assetsLiabilitiesTreeView.getRoot().getChildren().stream()
                         .filter(item -> "Liabilities".equals(item.getValue()))
                         .findFirst()
                         .orElse(null);
                 if (liabilitiesNode != null) {
-                    liabilitiesNode.getChildren().add(new TreeItem<>(liabilityName));
-                    liabilitiesNode.setExpanded(true);
-                    Account account = new Account(liabilityName, "Liability", liabilityTypeComboBox.getValue());
+                    TreeItem<String> subtypeNode = liabilitiesNode.getChildren().stream()
+                            .filter(item -> liabilitySubType.equals(item.getValue()))
+                            .findFirst()
+                            .orElseGet(() -> {
+                                TreeItem<String> newSubtypeNode = new TreeItem<>(liabilitySubType);
+                                liabilitiesNode.getChildren().add(newSubtypeNode);
+                                return newSubtypeNode;
+                            });
+                    subtypeNode.getChildren().add(new TreeItem<>(liabilityName));
+                    subtypeNode.setExpanded(true);
+                    Account account = new Account(liabilityName, "Liability", liabilitySubType);
                     TransactionDAO.insertAssetLiabilityType(account);
                 }
+            }
+            if(liabilityName == null || liabilityName.trim().isEmpty() || liabilitySubType == null) {
+                System.out.println("Invalid liability details");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setContentText("Please enter valid liability details.");
+                alert.showAndWait();
             }
         }
     }
@@ -499,7 +560,7 @@ public class TransactionController {
         DatePicker datePicker = new DatePicker();
         datePicker.setValue(LocalDate.parse(dateColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex())));
         TextField descriptionField = new TextField(descriptionColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
-
+        //Set up user input dialog
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -606,6 +667,15 @@ public class TransactionController {
             dialog.getDialogPane().getButtonTypes().addAll(removeButtonType, ButtonType.CANCEL);
             Optional<ButtonType> result = dialog.showAndWait();
             if(result.isPresent() && result.get() == removeButtonType){
+                //Remove the account from the database
+                List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
+                for(Account account : accounts){
+                    if(account.getName().equals(selectedItem.getValue())){
+                        TransactionDAO.deleteAssetLiabilityType(account);
+                    }
+                }
+                //Remove the account from the tree view
+                selectedItem.getParent().getChildren().remove(selectedItem);
             }
         }
 
@@ -624,6 +694,21 @@ public class TransactionController {
             parent = parent.getParent();
         }
         return fullPath.toString();
+    }
+    private boolean checkDupes(String assetName, String assetSubType) {
+        //Check if a duplicate account with the same name and subtype already exists
+        List<Account> assetLiabilityTypes = TransactionDAO.getAssetLiabilityTypes();
+        for (Account account : assetLiabilityTypes) {
+            if (account.getName().equals(assetName) && account.getSubType().equals(assetSubType)) {
+                System.out.println("Duplicate account found");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setContentText("An account with the same name and type already exists.");
+                alert.showAndWait();
+                return true;
+            }
+        }
+        return false;
     }
 
     @FXML

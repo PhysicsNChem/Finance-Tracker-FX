@@ -28,6 +28,8 @@ public class ReportController extends ComboBox<Object> {
     public Label incomeLabel;
     @FXML
     public Label expenseLabel;
+    @FXML
+    public Button help;
     private SceneSwitcher switcher;
     //Sentinel value for custom date
     private static final String CUSTOM_DATE = "Custom date...";
@@ -159,6 +161,15 @@ public class ReportController extends ComboBox<Object> {
                         setSceneSwitcher(new SceneSwitcher(HelloApplication.primaryStage));
                         switcher.preloadScene("transactions", "/com/app/demo/transactions-page.fxml");
                         switcher.switchToPreloaded("transactions");
+                    }
+                }
+                case "help" -> {
+                    try{
+                        switcher.switchToPreloaded("help");
+                    } catch (Exception e){
+                        setSceneSwitcher(new SceneSwitcher(HelloApplication.primaryStage));
+                        switcher.preloadScene("help", "/com/app/demo/help-view.fxml");
+                        switcher.switchToPreloaded("help");
                     }
                 }
             }

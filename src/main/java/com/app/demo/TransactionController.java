@@ -1,26 +1,20 @@
 package com.app.demo;
 
-import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.fxml.*;
 import javafx.print.*;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.input.*;
 import javafx.beans.binding.Bindings;
 import javafx.application.Platform;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -48,8 +42,6 @@ public class TransactionController {
     private AnchorPane mainContainer;
     public double amount;
     public String memo;
-    public String incomeExpense;
-    public String payer;
     private String date;
 
 
@@ -78,11 +70,18 @@ public class TransactionController {
     @FXML
     private Button addTransactionButton;
 
+    private SceneSwitcher switcher;
+
+    private TreeItem<String> rootItem;
+
     private ObservableList<Transaction> transactionList = FXCollections.observableArrayList();
     private FilteredList<Transaction> filteredTransactionList = new FilteredList<>(transactionList);
     private DoubleProperty totalBalance = new SimpleDoubleProperty(0);
     private ObservableList<Category> categories = FXCollections.observableArrayList();
 
+    public void setSceneSwitcher(SceneSwitcher switcher){
+        this.switcher = switcher;
+    }
 
     @FXML
     public void initialize() {
@@ -171,7 +170,7 @@ public class TransactionController {
 
     @SuppressWarnings("unchecked")
     private void initializeTreeView() {
-        TreeItem<String> rootItem = new TreeItem<>("Transactions");
+        rootItem = new TreeItem<>("Transactions");
         TreeItem<String> mainPageItem = new TreeItem<>("Main view");
         TreeItem<String> assetsItem = new TreeItem<>("Assets");
         TreeItem<String> liabilitiesItem = new TreeItem<>("Liabilities");
@@ -194,6 +193,7 @@ public class TransactionController {
         assetsItem.setExpanded(true);
         liabilitiesItem.setExpanded(true);
         assetsLiabilitiesTreeView.setRoot(rootItem);
+        //Root pane is only included for organizational purposes
         assetsLiabilitiesTreeView.setShowRoot(false);
         assetsLiabilitiesTreeView.getSelectionModel().select(mainPageItem);
 
@@ -210,6 +210,12 @@ public class TransactionController {
         if ("Main view".equals(selectedItemValue)) {
             selectedAssetLiabilityName = null;
             loadMainTransactionPage();
+        } else if("Assets".equals(selectedItemValue)){
+            selectedAssetLiabilityName = null;
+            loadMainTransactionPage();
+        } else if ("Liabilities".equals(selectedItemValue)) {
+            selectedAssetLiabilityName = null;
+            loadMainTransactionPage();
         } else {
             selectedAssetLiabilityName = selectedItemValue;
         }
@@ -223,6 +229,7 @@ public class TransactionController {
             AnchorPane mainPage = loader.load();
             mainContainer.getChildren().setAll(mainPage);
         } catch (IOException e) {
+            //Clicking back onto Main view throws this exception, but is actually a sign of successful loading
             System.out.println("Main view load successful");
         } catch (IllegalStateException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -340,7 +347,7 @@ public class TransactionController {
             }
             Transaction transaction = new Transaction(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue(), date, memo, amount, categoryValue, incomeExpenseValue, payerValue);
             transactionList.add(transaction);
-            updateTotalBalance(incomeExpenseValue, amount);
+            updateTotalBalance(amount);
             TransactionDAO.insertTransaction(transaction);
             System.out.println("Transaction added: Amount = " + amount + ", Description = " + memo);
             List<Transaction> transactions = TransactionDAO.getTransactions();
@@ -354,8 +361,19 @@ public class TransactionController {
 
 
     @FXML
-    private void onViewTransaction(ActionEvent event) {
-        // Handle View transaction button click
+    private void onTransfer(ActionEvent event) {
+        // Handle Transfer button click
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Transfer money");
+        dialog.setHeaderText("Transfer a transaction to be logged under another account");
+        ButtonType transferType = new ButtonType("Complete transfer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(transferType, ButtonType.CANCEL);
+        TextField amountField = new TextField();
+        amountField.setPromptText("");
+        //Create formatting for the dialog box and put the fields in a grid
+        GridPane grid = new GridPane();
+
+        dialog.showAndWait();
     }
 
     @FXML
@@ -536,14 +554,14 @@ public class TransactionController {
                 amount = -amount; // Make the amount negative for expenses
             }
             Transaction transaction = transactionsTable.getSelectionModel().getSelectedItem();
-            updateTotalBalance(transaction.getIncomeExpense(), -transaction.getAmount());
+            updateTotalBalance(-transaction.getAmount());
             transaction.setAmount(amount);
             transaction.setCategory(categoryValue);
             transaction.setIncomeExpense(incomeExpenseValue);
             transaction.setPayer(payerValue);
             transaction.setDate(date);
             transaction.setDescription(memo);
-            updateTotalBalance(incomeExpenseValue, amount);
+            updateTotalBalance(amount);
             TransactionDAO.updateTransaction(transaction);
             System.out.println("Transaction updated: Amount = " + amount + ", Description = " + memo);
             filteredTransactionList.setPredicate(filteredTransactionList.getPredicate());
@@ -570,20 +588,35 @@ public class TransactionController {
         Transaction transaction = transactionsTable.getSelectionModel().getSelectedItem();
         if (result.isPresent() && result.get() == removeButtonType) {
             transactionList.remove(transaction);
-            updateTotalBalance(transaction.getIncomeExpense(), -transaction.getAmount());
+            updateTotalBalance(-transaction.getAmount());
             TransactionDAO.deleteTransaction(transaction);
         }
         System.out.println("Remove Transaction button clicked");
     }
+    @FXML
     private void onRemoveAccount(ActionEvent event) {
         // Handle Remove Account button click
+        TreeItem <String> selectedItem = assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem();
+        //Make sure it's not one of the headers critical to the application structure
+        if(selectedItem != null && (!selectedItem.getValue().equals("Main view") && !selectedItem.getValue().equals("Assets") && !selectedItem.getValue().equals("Liabilities"))) {
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Remove Account");
+            dialog.setHeaderText("Are you sure you want to remove this account? \nThis action cannot be undone and will delete all transactions under this account.");
+            ButtonType removeButtonType = new ButtonType("Remove", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(removeButtonType, ButtonType.CANCEL);
+            Optional<ButtonType> result = dialog.showAndWait();
+            if(result.isPresent() && result.get() == removeButtonType){
+            }
+        }
+
     }
 
-    private void updateTotalBalance(String incomeExpense, double amount) {
+    private void updateTotalBalance(double amount) {
         totalBalance.set(totalBalance.get() + amount);
     }
 
     private String getFullPath(TreeItem<String> item) {
+        //helper method to build out the path to be displayed on the transactions page
         StringBuffer fullPath = new StringBuffer(item.getValue());
         TreeItem<String> parent = item.getParent();
         while (parent != null && parent.getValue() != null) {
@@ -608,8 +641,22 @@ public class TransactionController {
         switch (buttonLabel){
             case "home" -> HelloApplication.loadHomePage();
             case "reports" -> {
-                SceneSwitcher switcher = new SceneSwitcher(HelloApplication.primaryStage);
-                switcher.switchTo("/com/app/demo/reports-page.fxml");
+                try {
+                    switcher.switchToPreloaded("reports");
+                } catch (Exception e) {
+                    setSceneSwitcher(new SceneSwitcher(HelloApplication.primaryStage));
+                    switcher.preloadScene("reports", "/com/app/demo/reports-page.fxml");
+                    switcher.switchToPreloaded("reports");
+                }
+            }
+            case "help" -> {
+                try {
+                    switcher.switchToPreloaded("help");
+                } catch (Exception e) {
+                    setSceneSwitcher(new SceneSwitcher(HelloApplication.primaryStage));
+                    switcher.preloadScene("help", "/com/app/demo/help-view.fxml");
+                    switcher.switchToPreloaded("help");
+                }
             }
         }
     }

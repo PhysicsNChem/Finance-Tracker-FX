@@ -12,10 +12,9 @@ import java.io.IOException;
 
 public class HelloController {
 
+    public Tooltip helpToolTip;
     private SceneSwitcher switcher;
 
-    @FXML
-    private Tooltip helpTooltip;
 
     @FXML
     private Button helpButton;

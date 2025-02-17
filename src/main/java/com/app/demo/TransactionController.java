@@ -10,8 +10,7 @@ import javafx.fxml.*;
 import javafx.print.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.scene.input.*;
 import javafx.beans.binding.Bindings;
 import javafx.application.Platform;
@@ -147,7 +146,7 @@ public class TransactionController {
         transactionList.setAll(transactions);
         transactionsTable.setItems(transactionList);
     }
-
+    //Filtering method for search function
     private void updateFilter() {
         String searchText = searchField.getText().toLowerCase();
         Category selectedCategory = categoryFilterComboBox.getValue();
@@ -229,20 +228,25 @@ public class TransactionController {
             }
         });
     }
-
+    //filtering by account
     private void handleTreeViewSelection(TreeItem<String> selectedItem) {
         String selectedValue = selectedItem.getValue();
-        if ("Main view".equals(selectedValue)) {
-            transactionsTable.setItems(transactionList);
-        } else {
-            // Filter transactions based on the selected account
-            ObservableList<Transaction> filteredTransactions = FXCollections.observableArrayList();
-            for (Transaction transaction : transactionList) {
-                if (transaction.getSource().equals(selectedValue)) {
-                    filteredTransactions.add(transaction);
+        switch (selectedValue) {
+            case "Main view" -> transactionsTable.setItems(transactionList);
+            case "Assets" -> filterByAccount("Asset", "");
+            case "Liabilities" -> filterByAccount("Liability", "");
+            case "Chequing accounts", "Savings accounts", "Brokerages", "Properties", "Other assets" -> filterByAccount("Asset", selectedValue);
+            case "Credit cards", "Mortgages", "Other loans", "Other liabilities" -> filterByAccount("Liability", selectedValue);
+            case null, default -> {
+                // Filter transactions based on the selected account
+                ObservableList<Transaction> filteredTransactions = FXCollections.observableArrayList();
+                for (Transaction transaction : transactionList) {
+                    if (transaction.getSource().equals(selectedValue)) {
+                        filteredTransactions.add(transaction);
+                    }
                 }
+                transactionsTable.setItems(filteredTransactions);
             }
-            transactionsTable.setItems(filteredTransactions);
         }
     }
 
@@ -378,6 +382,8 @@ public class TransactionController {
             updateAccBalance(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue(), parent, grandParent, amount);
             // Add the transaction to the database
             TransactionDAO.insertTransaction(transaction);
+            // Update the table view
+            handleTreeViewSelection(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem());
             System.out.println("Transaction added: Amount = " + amount + ", Description = " + memo);
             List<Transaction> transactions = TransactionDAO.getTransactions();
             for (Transaction t : transactions) {
@@ -730,6 +736,26 @@ public class TransactionController {
             }
         }
         return false;
+    }
+    private void filterByAccount(String type, String subtype) {
+        if(subtype.isEmpty()) {
+            ObservableList<Account> accs = FXCollections.observableArrayList();
+            ObservableList<Transaction> filteredTransactions = FXCollections.observableArrayList();
+            for (Account account : TransactionDAO.getAssetLiabilityTypes()) {
+                if (account.getType().equals(type)) {
+                    accs.add(account);
+                }
+            }
+            for (Account asset : accs) {
+                for (Transaction transaction : transactionList) {
+                    if (transaction.getSource().equals(asset.getName())) {
+                        filteredTransactions.add(transaction);
+                    }
+                }
+
+            }
+            transactionsTable.setItems(filteredTransactions);
+        }
     }
 
     @FXML

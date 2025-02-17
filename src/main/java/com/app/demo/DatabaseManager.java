@@ -34,7 +34,8 @@ public class DatabaseManager {
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "name TEXT NOT NULL," +
                 "type TEXT NOT NULL," +
-                "subType TEXT NOT NULL" +
+                "subType TEXT NOT NULL," +
+                "accBalance REAL NOT NULL" +
                 ");";
 
         try (Connection conn = connect();

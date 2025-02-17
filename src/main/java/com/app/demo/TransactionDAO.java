@@ -86,12 +86,13 @@ public class TransactionDAO {
         }
     }
     public static void insertAssetLiabilityType(Account account){
-        String sql = "INSERT INTO asset_liability_types(name, type, subType) VALUES(?,?,?)";
+        String sql = "INSERT INTO asset_liability_types(name, type, subType, accBalance) VALUES(?,?,?,?)";
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, account.getName());
             pstmt.setString(2, account.getType());
             pstmt.setString(3, account.getSubType());
+            pstmt.setDouble(4, account.getAccBalance());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -105,7 +106,7 @@ public class TransactionDAO {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Account account = new Account(rs.getString("name"), rs.getString("type"), rs.getString("subType"));
+                Account account = new Account(rs.getString("name"), rs.getString("type"), rs.getString("subType"), rs.getDouble("accBalance"));
                 assetLiabilityTypes.add(account);
             }
         } catch (SQLException e) {
@@ -114,9 +115,19 @@ public class TransactionDAO {
         return assetLiabilityTypes;
     }
     public static void deleteAssetLiabilityType(Account account){
-        String sql = "DELETE FROM asset_liability_types WHERE name = ? AND type = ? AND subType = ?";
+        String sql = "DELETE FROM asset_liability_types WHERE name = ? AND type = ? AND subType = ? AND accBalance = ?";
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public static void updateAccBalance(Account account){
+        String sql = "UPDATE asset_liability_types SET accBalance = ? WHERE name = ? AND type = ? AND subType = ?";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDouble(4, account.getAccBalance());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());

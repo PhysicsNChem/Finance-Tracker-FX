@@ -12,6 +12,7 @@ import java.text.*;
 import java.text.NumberFormat;
 import java.time.*;
 import javafx.scene.control.*;
+import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.util.StringConverter;
 
@@ -30,6 +31,8 @@ public class ReportController extends ComboBox<Object> {
     public Label expenseLabel;
     @FXML
     public Button help;
+    @FXML
+    public Text netLabel;
     private SceneSwitcher switcher;
     //Sentinel value for custom date
     private static final String CUSTOM_DATE = "Custom date...";

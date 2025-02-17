@@ -27,7 +27,6 @@ public class TransactionController {
     @FXML
     public Button TransferMoney;
     private Category categoryValue;
-    private String selectedAssetLiabilityName;
     @FXML
     private Label emptyLabel;
     @FXML
@@ -86,10 +85,13 @@ public class TransactionController {
     @FXML
     public void initialize() {
         initializeTreeView();
+        //disable the update and remove buttons if no transaction is selected
         updateButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
         removeButton.disableProperty().bind(Bindings.isNull(transactionsTable.getSelectionModel().selectedItemProperty()));
+        //disable the add transaction button if no account is selected
         addTransactionButton.disableProperty().bind(Bindings.createBooleanBinding(() ->
-                        "Main view".equals(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue()),
+                        "Main view".equals(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue()) ||
+                                !assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getChildren().isEmpty(),
                 assetsLiabilitiesTreeView.getSelectionModel().selectedItemProperty()));
         emptyLabel = new Label("No transactions available. Click or tap 'Help' for more information.");
         sourceColumn.setCellValueFactory(new PropertyValueFactory<>("source"));
@@ -149,9 +151,10 @@ public class TransactionController {
     private void updateFilter() {
         String searchText = searchField.getText().toLowerCase();
         Category selectedCategory = categoryFilterComboBox.getValue();
-
+        //Make a predicate 'transaction' of the transaction class to return for matching text. This will always return true for the FilteredList, as expected
         filteredTransactionList.setPredicate(transaction -> {
             boolean matchesSearchText = searchText.isEmpty() ||
+                    transaction.getSource().toLowerCase().contains(searchText) ||
                     transaction.getDate().toLowerCase().contains(searchText) ||
                     transaction.getDescription().toLowerCase().contains(searchText) ||
                     transaction.getCategory().getName().toLowerCase().contains(searchText) ||
@@ -159,11 +162,12 @@ public class TransactionController {
                     transaction.getPayer().toLowerCase().contains(searchText) ||
                     String.valueOf(transaction.getAmount()).contains(searchText);
 
-            boolean matchesCategory = selectedCategory == null || transaction.getCategory().equals(selectedCategory);
+            boolean matchesCategory = selectedCategory == null ||
+                    "All categories".equals(selectedCategory.getName()) ||
+                    transaction.getCategory().getName().equals(selectedCategory.getName());
 
-            boolean matchesAssetLiability = selectedAssetLiabilityName == null || transaction.getSource().equals(selectedAssetLiabilityName);
 
-            return matchesSearchText && matchesCategory && matchesAssetLiability;
+            return matchesSearchText && matchesCategory;
         });
         transactionsTable.refresh();
     }
@@ -227,20 +231,19 @@ public class TransactionController {
     }
 
     private void handleTreeViewSelection(TreeItem<String> selectedItem) {
-        String selectedItemValue = selectedItem.getValue();
-        if ("Main view".equals(selectedItemValue)) {
-            selectedAssetLiabilityName = null;
-            loadMainTransactionPage();
-        } else if("Assets".equals(selectedItemValue)){
-            selectedAssetLiabilityName = null;
-            loadMainTransactionPage();
-        } else if ("Liabilities".equals(selectedItemValue)) {
-            selectedAssetLiabilityName = null;
-            loadMainTransactionPage();
+        String selectedValue = selectedItem.getValue();
+        if ("Main view".equals(selectedValue)) {
+            transactionsTable.setItems(transactionList);
         } else {
-            selectedAssetLiabilityName = selectedItemValue;
+            // Filter transactions based on the selected account
+            ObservableList<Transaction> filteredTransactions = FXCollections.observableArrayList();
+            for (Transaction transaction : transactionList) {
+                if (transaction.getSource().equals(selectedValue)) {
+                    filteredTransactions.add(transaction);
+                }
+            }
+            transactionsTable.setItems(filteredTransactions);
         }
-        updateFilter();
     }
 
     @FXML
@@ -330,7 +333,7 @@ public class TransactionController {
         Platform.runLater(amountField::requestFocus);
 
         Optional<ButtonType> result = dialog.showAndWait();
-
+        //verify that the buttons (which disable themselves if the input is invalid) would not do anything as a result of an invalid input being passed through
         if (result.isPresent() && result.get() == addButtonType && !assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue().equals("Main view")) {
             try {
                 amount = Double.parseDouble(amountField.getText());
@@ -338,7 +341,7 @@ public class TransactionController {
                     System.out.println("Invalid amount entered");
                     Alert alert = new Alert(Alert.AlertType.WARNING);
                     alert.setTitle("Error");
-                    alert.setContentText("Enter a non-zero value within the 64-bit flimit, please.");
+                    alert.setContentText("Enter a non-zero value within the 64-bit limit, please.");
                     alert.showAndWait();
                     return;
                 }
@@ -366,9 +369,14 @@ public class TransactionController {
             if ("Expense".equals(incomeExpenseValue)) {
                 amount = -amount; // Make the amount negative for expenses
             }
+            //Source will be tied to the selected account's name
             Transaction transaction = new Transaction(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue(), date, memo, amount, categoryValue, incomeExpenseValue, payerValue);
             transactionList.add(transaction);
             updateTotalBalance(amount);
+            String parent = assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getParent().getValue();
+            String grandParent = assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getParent().getParent().getValue();
+            updateAccBalance(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue(), parent, grandParent, amount);
+            // Add the transaction to the database
             TransactionDAO.insertTransaction(transaction);
             System.out.println("Transaction added: Amount = " + amount + ", Description = " + memo);
             List<Transaction> transactions = TransactionDAO.getTransactions();
@@ -453,7 +461,7 @@ public class TransactionController {
                 alert.showAndWait();
             }
             //Check if a duplicate account with the same name and subtype already exists
-            if (assetName != null && !assetName.trim().isEmpty() && assetSubType != null && !checkDupes(assetName, assetSubType)) {
+            if (assetName != null && !assetName.trim().isEmpty() && assetSubType != null && !checkDupes(assetName)) {
                 TreeItem<String> assetsNode = assetsLiabilitiesTreeView.getRoot().getChildren().stream()
                         .filter(item -> "Assets".equals(item.getValue()))
                         .findFirst()
@@ -468,8 +476,9 @@ public class TransactionController {
                                 return newSubtypeNode;
                             });
                     subtypeNode.getChildren().add(new TreeItem<>(assetName));
+                    //for better readability
                     subtypeNode.setExpanded(true);
-                    Account account = new Account(assetName, "Asset", assetSubType);
+                    Account account = new Account(assetName, "Asset", assetSubType, 0.00);
                     TransactionDAO.insertAssetLiabilityType(account);
                 }
             }
@@ -510,7 +519,7 @@ public class TransactionController {
         if (result.isPresent() && result.get() == addButtonType) {
             String liabilityName = liabilityNameField.getText();
             String liabilitySubType = liabilityTypeComboBox.getValue();
-            if (liabilityName != null && !liabilityName.trim().isEmpty() && liabilitySubType != null && !checkDupes(liabilityName, liabilitySubType)) {
+            if (liabilityName != null && !liabilityName.trim().isEmpty() && liabilitySubType != null && !checkDupes(liabilityName)) {
                 TreeItem<String> liabilitiesNode = assetsLiabilitiesTreeView.getRoot().getChildren().stream()
                         .filter(item -> "Liabilities".equals(item.getValue()))
                         .findFirst()
@@ -526,7 +535,7 @@ public class TransactionController {
                             });
                     subtypeNode.getChildren().add(new TreeItem<>(liabilityName));
                     subtypeNode.setExpanded(true);
-                    Account account = new Account(liabilityName, "Liability", liabilitySubType);
+                    Account account = new Account(liabilityName, "Liability", liabilitySubType, 0.00);
                     TransactionDAO.insertAssetLiabilityType(account);
                 }
             }
@@ -684,6 +693,18 @@ public class TransactionController {
     private void updateTotalBalance(double amount) {
         totalBalance.set(totalBalance.get() + amount);
     }
+    private void updateAccBalance(String acc, String parent, String grandParent, double amount){
+        List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
+        for(Account account : accounts){
+            if(account.getName().equals(acc) && account.getSubType().equals(parent) && account.getType().equals(grandParent)){
+                account.setAccBalance(account.getAccBalance() + amount);
+                TransactionDAO.updateAccBalance(account);
+                System.out.println("Account balance updated: " + account.getAccBalance());
+                break;
+            }
+        }
+
+    }
 
     private String getFullPath(TreeItem<String> item) {
         //helper method to build out the path to be displayed on the transactions page
@@ -695,15 +716,15 @@ public class TransactionController {
         }
         return fullPath.toString();
     }
-    private boolean checkDupes(String assetName, String assetSubType) {
+    private boolean checkDupes(String assetName) {
         //Check if a duplicate account with the same name and subtype already exists
         List<Account> assetLiabilityTypes = TransactionDAO.getAssetLiabilityTypes();
         for (Account account : assetLiabilityTypes) {
-            if (account.getName().equals(assetName) && account.getSubType().equals(assetSubType)) {
+            if (account.getName().equals(assetName)) {
                 System.out.println("Duplicate account found");
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Error");
-                alert.setContentText("An account with the same name and type already exists.");
+                alert.setContentText("An account with the same name already exists.");
                 alert.showAndWait();
                 return true;
             }

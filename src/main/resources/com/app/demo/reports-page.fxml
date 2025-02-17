@@ -11,12 +11,9 @@
 <?import javafx.scene.text.Text?>
 
 <AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.ReportController">
-   <Text layoutX="361.0" layoutY="116.0" strokeType="OUTSIDE" strokeWidth="0.0" text="and spent" />
-   <Text layoutX="236.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0" text=",  you've made" />
-   <Label fx:id="incomeLabel" layoutX="329.0" layoutY="104.0" text="0.00" />
-   <Label fx:id="expenseLabel" layoutX="429.0" layoutY="104.0" text="0.00" />
-   <Label layoutX="575.0" layoutY="104.0" text="0.00" />
-   <Text layoutX="454.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0" text=", resulting in a net" wrappingWidth="120.537109375" />
+   <Text fx:id="netLabel" layoutX="236.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0" text=",  you've made 0.00 and spent 0.00, resulting in a net gain of 0.00" wrappingWidth="426.2581787109375" />
+   <Label fx:id="incomeLabel" layoutX="323.0" layoutY="224.0" prefHeight="18.0" prefWidth="41.0" text="0.00" />
+   <Label fx:id="expenseLabel" layoutX="405.0" layoutY="224.0" prefHeight="18.0" prefWidth="34.0" text="0.00" />
    <Text layoutX="47.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Since" wrappingWidth="30.13671875" />
     <ToolBar layoutX="2.0" layoutY="7.0" prefHeight="40.0" prefWidth="1277.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
         <Button fx:id="home" onAction="#handleToolBarAction" text="Home" />
@@ -25,14 +22,14 @@
                 <Cursor fx:constant="HAND" />
             </cursor>
         </Button>
-        <Button fx:id="transactions" mnemonicParsing="false"  onAction="#handleToolBarAction"   text="Transactions">
+        <Button fx:id="transactions" mnemonicParsing="false" onAction="#handleToolBarAction" text="Transactions">
             <cursor>
                 <Cursor fx:constant="HAND" />
             </cursor>
         </Button>
         <Region prefHeight="30.0" prefWidth="200.0" />
         <Region />
-      <Button fx:id="help" mnemonicParsing="false" text="Help" onAction="#handleToolBarAction">
+      <Button fx:id="help" mnemonicParsing="false" onAction="#handleToolBarAction" text="Help">
          <tooltip>
             <Tooltip text="Information on the use of FBLA Project" />
          </tooltip></Button>

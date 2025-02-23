@@ -15,10 +15,11 @@ import javafx.scene.input.*;
 import javafx.beans.binding.Bindings;
 import javafx.application.Platform;
 
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.time.LocalDate;
+import java.io.*;
+import java.text.*;
+import java.time.*;
 import java.util.*;
+import java.util.function.*;
 
 public class TransactionController {
     @FXML
@@ -38,8 +39,8 @@ public class TransactionController {
     private TreeView<String> assetsLiabilitiesTreeView;
     @FXML
     private AnchorPane mainContainer;
-    public double amount;
-    public String memo;
+    protected double amount;
+    protected String memo;
     private String date;
 
 
@@ -77,7 +78,7 @@ public class TransactionController {
     private DoubleProperty totalBalance = new SimpleDoubleProperty(0);
     private ObservableList<Category> categories = FXCollections.observableArrayList();
 
-    public void setSceneSwitcher(SceneSwitcher switcher){
+    public void setSceneSwitcher(SceneSwitcher switcher) {
         this.switcher = switcher;
     }
 
@@ -92,6 +93,10 @@ public class TransactionController {
                         "Main view".equals(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue()) ||
                                 !assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getChildren().isEmpty(),
                 assetsLiabilitiesTreeView.getSelectionModel().selectedItemProperty()));
+        //disable the transfer money button if fewer than two accounts exist (at least one asset and one liability)
+
+
+
         emptyLabel = new Label("No transactions available. Click or tap 'Help' for more information.");
         sourceColumn.setCellValueFactory(new PropertyValueFactory<>("source"));
         incomeExpenseColumn.setCellValueFactory(new PropertyValueFactory<>("incomeExpense"));
@@ -146,6 +151,7 @@ public class TransactionController {
         transactionList.setAll(transactions);
         transactionsTable.setItems(transactionList);
     }
+
     //Filtering method for search function
     private void updateFilter() {
         String searchText = searchField.getText().toLowerCase();
@@ -192,26 +198,26 @@ public class TransactionController {
             TreeItem<String> subtypeItem = new TreeItem<>(entry.getKey());
             subtypeItem.setExpanded(true); // Expand the subtype view by default
             for (Account asset : entry.getValue()) {
-                subtypeItem.getChildren().add(new TreeItem<>(asset.getName()));
+                subtypeItem.getChildren().add(new TreeItem<>(asset.getName() + " → " + NumberFormat.getCurrencyInstance().format(asset.getAccBalance())));
             }
             assetsItem.getChildren().add(subtypeItem);
         }
-
-        Map <String, List<Account>> liabilitiesBySubtype = new HashMap<>();
+        //do the same for liabilities
+        Map<String, List<Account>> liabilitiesBySubtype = new HashMap<>();
         List<Account> liabilityTypes = TransactionDAO.getAssetLiabilityTypes();
         for (Account liabilityType : liabilityTypes) {
             if (liabilityType.getType().equals("Liability")) {
                 liabilitiesBySubtype.computeIfAbsent(liabilityType.getSubType(), k -> new ArrayList<>()).add(liabilityType);
             }
         }
-            for (Map.Entry<String, List<Account>> entry : liabilitiesBySubtype.entrySet()) {
-                TreeItem<String> subtypeItem = new TreeItem<>(entry.getKey());
-                subtypeItem.setExpanded(true); // Expand the subtype view by default
-                for (Account liability : entry.getValue()) {
-                    subtypeItem.getChildren().add(new TreeItem<>(liability.getName()));
-                }
-                liabilitiesItem.getChildren().add(subtypeItem);
+        for (Map.Entry<String, List<Account>> entry : liabilitiesBySubtype.entrySet()) {
+            TreeItem<String> subtypeItem = new TreeItem<>(entry.getKey());
+            subtypeItem.setExpanded(true); // Expand the subtype view by default
+            for (Account liability : entry.getValue()) {
+                subtypeItem.getChildren().add(new TreeItem<>(liability.getName() + " → " + NumberFormat.getCurrencyInstance().format(liability.getAccBalance())));
             }
+            liabilitiesItem.getChildren().add(subtypeItem);
+        }
         // Add the main page and accounts to the root
         rootItem.getChildren().addAll(mainPageItem, assetsItem, liabilitiesItem);
         assetsItem.setExpanded(true);
@@ -228,6 +234,7 @@ public class TransactionController {
             }
         });
     }
+
     //filtering by account
     private void handleTreeViewSelection(TreeItem<String> selectedItem) {
         String selectedValue = selectedItem.getValue();
@@ -235,13 +242,16 @@ public class TransactionController {
             case "Main view" -> transactionsTable.setItems(transactionList);
             case "Assets" -> filterByAccount("Asset", "");
             case "Liabilities" -> filterByAccount("Liability", "");
-            case "Chequing accounts", "Savings accounts", "Brokerages", "Properties", "Other assets" -> filterByAccount("Asset", selectedValue);
-            case "Credit cards", "Mortgages", "Other loans", "Other liabilities" -> filterByAccount("Liability", selectedValue);
+            case "Chequing accounts", "Savings accounts", "Brokerages", "Properties", "Other assets" ->
+                    filterByAccount("Asset", selectedValue);
+            case "Credit cards", "Mortgages", "Other loans", "Other liabilities" ->
+                    filterByAccount("Liability", selectedValue);
             case null, default -> {
                 // Filter transactions based on the selected account
                 ObservableList<Transaction> filteredTransactions = FXCollections.observableArrayList();
                 for (Transaction transaction : transactionList) {
-                    if (transaction.getSource().equals(selectedValue)) {
+                    String[] hotel = Objects.requireNonNull(selectedValue).split(" ");
+                    if (transaction.getSource().equals(hotel[0])) {
                         filteredTransactions.add(transaction);
                     }
                 }
@@ -269,23 +279,19 @@ public class TransactionController {
     }
 
     private void initializeCategories() {
-        categories.addAll(
-                new Category("All categories"),
-                new Category("Food"),
-                new Category("Transport"),
-                new Category("Entertainment"),
-                new Category("Salary"),
-                new Category("Dividend"),
-                new Category("Other")
-        );
+        String[] categoryNames = {"Food", "Transport", "Entertainment", "Salary", "Investments", "Dividend", "Other"};
+        for (String name : categoryNames) {
+            categories.add(new Category(name));
+            TransactionDAO.insertCategory(new Category(name));
+        }
     }
 
     private ObservableList<Category> filterCategories(String type) {
         return categories.filtered(category -> {
             if (type.equals("Income")) {
-                return category.getName().equals("Salary") || category.getName().equals("Dividend");
+                return category.getName().equals("Salary") || category.getName().equals("Dividend") || category.getName().equals("Investments");
             } else if (type.equals("Expense")) {
-                return !category.getName().equals("Salary") && !category.getName().equals("Dividend");
+                return !category.getName().equals("Salary") && !category.getName().equals("Dividend") && !category.getName().equals("Investments");
             }
             return false;
         });
@@ -306,6 +312,7 @@ public class TransactionController {
         payerField.setPromptText("Enter payer/recipient here");
         ComboBox<String> incomeExpense = new ComboBox<>();
         incomeExpense.getItems().addAll("Expense", "Income");
+        //default value of expense
         incomeExpense.setValue("Expense");
         ComboBox<Category> categoryComboBox = new ComboBox<>(filterCategories(incomeExpense.getValue()));
         DatePicker datePicker = new DatePicker();
@@ -373,13 +380,21 @@ public class TransactionController {
             if ("Expense".equals(incomeExpenseValue)) {
                 amount = -amount; // Make the amount negative for expenses
             }
-            //Source will be tied to the selected account's name
-            Transaction transaction = new Transaction(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue(), date, memo, amount, categoryValue, incomeExpenseValue, payerValue);
+            //Source will be tied to the selected account's name, but not other Account variables
+            String accGiven = assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue();
+            String[] findAccName = accGiven.split(" ");
+            Transaction transaction = new Transaction(findAccName[0], date, memo, amount, categoryValue, incomeExpenseValue, payerValue);
             transactionList.add(transaction);
             updateTotalBalance(amount);
             String parent = assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getParent().getValue();
             String grandParent = assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getParent().getParent().getValue();
-            updateAccBalance(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue(), parent, grandParent, amount);
+            System.out.println(parent);
+            //update account balance
+            switch (grandParent) {
+                case "Assets" -> updateAccBalance(findAccName[0], parent, "Asset", amount);
+                case "Liabilities" -> updateAccBalance(findAccName[0], parent, "Liability", amount);
+            }
+
             // Add the transaction to the database
             TransactionDAO.insertTransaction(transaction);
             // Update the table view
@@ -400,15 +415,83 @@ public class TransactionController {
         // Handle Transfer button click
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Transfer money");
-        dialog.setHeaderText("Transfer a transaction to be logged under another account");
+        dialog.setHeaderText("Transfer money from an asset to another asset or a liability account");
         ButtonType transferType = new ButtonType("Complete transfer", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(transferType, ButtonType.CANCEL);
         TextField amountField = new TextField();
-        amountField.setPromptText("");
+        amountField.setPromptText("Enter an amount here");
+        ComboBox<String> sourceAccountComboBox = new ComboBox<>();
+        //populate the source account combo box with the accounts
+        List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
+        for(Account acc : accounts){
+            if(acc.getType().equals("Asset")) {
+                sourceAccountComboBox.getItems().add(acc.getName());
+            }
+        }
+
+        ComboBox<String> destinationAccountComboBox = new ComboBox<>();
+        //populate the destination account combo box with the accounts
+        for(Account acc : accounts){
+                destinationAccountComboBox.getItems().add(acc.getName());
+        }
         //Create formatting for the dialog box and put the fields in a grid
         GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(40);
+        grid.add(new Label("Select account to transfer from"), 0, 0);
+        grid.add(sourceAccountComboBox, 1, 0);
+        grid.add(new Label("Enter money to be transferred"), 0, 1);
+        grid.add(amountField, 1, 1);
+        grid.add(new Label("Select account to transfer to"), 0, 2);
+        grid.add(destinationAccountComboBox, 1, 2);
+        dialog.getDialogPane().setContent(grid);
 
-        dialog.showAndWait();
+        Optional<ButtonType> result = dialog.showAndWait();
+        if(result.isPresent() && result.get() == transferType){
+            try {
+                amount = Double.parseDouble(amountField.getText());
+                if (amount <= 0) {
+                    System.out.println("Invalid amount entered");
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Error");
+                    alert.setContentText("Enter a non-zero value within the 64-bit limit, please.");
+                    alert.showAndWait();
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid amount entered");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setContentText("Enter only numbers in the amount field, please.");
+                alert.showAndWait();
+
+            }
+            String sourceAccount = sourceAccountComboBox.getValue();
+            String destAccount = destinationAccountComboBox.getValue();
+            if (sourceAccount == null || destAccount == null || sourceAccount.equals(destAccount)) {
+                System.out.println("Invalid account selection");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setContentText("Please select different accounts to transfer between.");
+                alert.showAndWait();
+            }
+            Transaction first = new Transaction(sourceAccount, LocalDate.now().toString(), "", -amount, new Category("Transfer"), "Expense", destAccount);
+            Transaction second = new Transaction(destAccount, LocalDate.now().toString(), "", amount, new Category("Transfer"), "Income", sourceAccount);
+            transactionList.add(first);
+            transactionList.add(second);
+            //insert the transaction into the database
+            TransactionDAO.insertTransaction(first);
+            TransactionDAO.insertTransaction(second);
+            handleTreeViewSelection(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem());
+            //update the account balance
+            for(Account acc : accounts){
+                if(acc.getName().equals(sourceAccount)){
+                    updateAccBalance(acc.getName(), acc.getSubType(), acc.getType(), -amount);
+                }
+                if(acc.getName().equals(destAccount)){
+                    updateAccBalance(acc.getName(), acc.getSubType(), acc.getType(), amount);
+                }
+            }
+        }
     }
 
     @FXML
@@ -457,9 +540,8 @@ public class TransactionController {
             String assetSubType = assetTypeComboBox.getValue();
 
 
-
             //Validate user input
-            if(assetName == null || assetName.trim().isEmpty() || assetSubType == null) {
+            if (assetName == null || assetName.trim().isEmpty() || assetSubType == null) {
                 System.out.println("Invalid asset details");
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Error");
@@ -481,7 +563,7 @@ public class TransactionController {
                                 assetsNode.getChildren().add(newSubtypeNode);
                                 return newSubtypeNode;
                             });
-                    subtypeNode.getChildren().add(new TreeItem<>(assetName));
+                    subtypeNode.getChildren().add(new TreeItem<>(assetName + " → " + NumberFormat.getCurrencyInstance().format(0)));
                     //for better readability
                     subtypeNode.setExpanded(true);
                     Account account = new Account(assetName, "Asset", assetSubType, 0.00);
@@ -539,13 +621,13 @@ public class TransactionController {
                                 liabilitiesNode.getChildren().add(newSubtypeNode);
                                 return newSubtypeNode;
                             });
-                    subtypeNode.getChildren().add(new TreeItem<>(liabilityName));
+                    subtypeNode.getChildren().add(new TreeItem<>(liabilityName + " → " + NumberFormat.getCurrencyInstance().format(0)));
                     subtypeNode.setExpanded(true);
                     Account account = new Account(liabilityName, "Liability", liabilitySubType, 0.00);
                     TransactionDAO.insertAssetLiabilityType(account);
                 }
             }
-            if(liabilityName == null || liabilityName.trim().isEmpty() || liabilitySubType == null) {
+            if (liabilityName == null || liabilityName.trim().isEmpty() || liabilitySubType == null) {
                 System.out.println("Invalid liability details");
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Error");
@@ -639,6 +721,13 @@ public class TransactionController {
             transaction.setDescription(memo);
             updateTotalBalance(amount);
             TransactionDAO.updateTransaction(transaction);
+
+            List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
+            for (Account acc : accounts) {
+                if (transaction.getSource().equals(acc.getName())) {
+                    updateAccBalance(acc.getName(), acc.getSubType(), acc.getType(), transaction.getAmount());
+                }
+            }
             System.out.println("Transaction updated: Amount = " + amount + ", Description = " + memo);
             filteredTransactionList.setPredicate(filteredTransactionList.getPredicate());
             transactionsTable.refresh();
@@ -655,6 +744,8 @@ public class TransactionController {
     @FXML
     private void onRemoveTransaction(ActionEvent event) {
         // Handle Remove Transaction button click
+
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Remove Transaction");
         dialog.setHeaderText("Are you sure you want to remove this transaction?");
@@ -662,54 +753,115 @@ public class TransactionController {
         dialog.getDialogPane().getButtonTypes().addAll(removeButtonType, ButtonType.CANCEL);
         Optional<ButtonType> result = dialog.showAndWait();
         Transaction transaction = transactionsTable.getSelectionModel().getSelectedItem();
+        //to get account attributes, match the String source with the account's name. The process is under the below conditional flow
+        List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
         if (result.isPresent() && result.get() == removeButtonType) {
             transactionList.remove(transaction);
+            for (Account acc : accounts) {
+                if (transaction.getSource().equals(acc.getName())) {
+                    updateAccBalance(acc.getName(), acc.getSubType(), acc.getType(), -transaction.getAmount());
+                    break;
+                }
+            }
             updateTotalBalance(-transaction.getAmount());
             TransactionDAO.deleteTransaction(transaction);
         }
         System.out.println("Remove Transaction button clicked");
     }
+
     @FXML
     private void onRemoveAccount(ActionEvent event) {
         // Handle Remove Account button click
-        TreeItem <String> selectedItem = assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem();
+        TreeItem<String> selectedItem = assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem();
         //Make sure it's not one of the headers critical to the application structure
-        if(selectedItem != null && (!selectedItem.getValue().equals("Main view") && !selectedItem.getValue().equals("Assets") && !selectedItem.getValue().equals("Liabilities"))) {
+        if (selectedItem != null && (!selectedItem.getValue().equals("Main view") && !selectedItem.getValue().equals("Assets") && !selectedItem.getValue().equals("Liabilities"))) {
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle("Remove Account");
             dialog.setHeaderText("Are you sure you want to remove this account? \nThis action cannot be undone and will delete all transactions under this account.");
             ButtonType removeButtonType = new ButtonType("Remove", ButtonBar.ButtonData.OK_DONE);
             dialog.getDialogPane().getButtonTypes().addAll(removeButtonType, ButtonType.CANCEL);
             Optional<ButtonType> result = dialog.showAndWait();
-            if(result.isPresent() && result.get() == removeButtonType){
-                //Remove the account from the database
+            if (result.isPresent() && result.get() == removeButtonType) {
                 List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
-                for(Account account : accounts){
-                    if(account.getName().equals(selectedItem.getValue())){
+                //logic to remove all transactions under the account and to remove the account from the database
+                for (Account account : accounts) {
+                    String[] selectedVal = selectedItem.getValue().split(" ");
+                    if (account.getName().equals(selectedVal[0]) && account.getSubType().equals(selectedItem.getParent().getValue())) {
                         TransactionDAO.deleteAssetLiabilityType(account);
                     }
                 }
+                //Make sure to run this under the JavaFX thread
+                Platform.runLater(() -> {
+                    List<Transaction> toRemove = transactionList.stream()
+                            .filter(transaction -> transaction.getSource().equals(selectedItem.getValue().split(" ")[0]))
+                            .toList();
+
+                    for (Transaction transaction : toRemove) {
+                        updateTotalBalance(-transaction.getAmount());
+                        TransactionDAO.deleteTransaction(transaction);
+                    }
+                    transactionList.removeAll(toRemove);
+
+                    // Rebind the FilteredList to force a refresh.
+                    Predicate<Transaction> filterCondition = t -> t.getSource().equals(selectedItem.getValue().split(" ")[0]);
+                    FilteredList<Transaction> newFilteredList = new FilteredList<>(transactionList, filterCondition);
+                    transactionsTable.setItems(newFilteredList);
+                    transactionsTable.refresh();
+                });
+
+
                 //Remove the account from the tree view
-                selectedItem.getParent().getChildren().remove(selectedItem);
+                TreeItem<String> parentItem = selectedItem.getParent();
+                parentItem.getChildren().remove(selectedItem);
+
+                // Check if the parent has no more children and remove it if necessary
+                if (parentItem.getChildren().isEmpty() && parentItem.getParent() != null) {
+                    parentItem.getParent().getChildren().remove(parentItem);
+                }
             }
         }
-
     }
 
     private void updateTotalBalance(double amount) {
         totalBalance.set(totalBalance.get() + amount);
     }
-    private void updateAccBalance(String acc, String parent, String grandParent, double amount){
+
+    private void updateAccBalance(String acc, String parent, String grandParent, double amount) {
         List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
-        for(Account account : accounts){
-            if(account.getName().equals(acc) && account.getSubType().equals(parent) && account.getType().equals(grandParent)){
-                account.setAccBalance(account.getAccBalance() + amount);
+        for (Account account : accounts) {
+            if (account.getName().equals(acc) && account.getSubType().equals(parent) && account.getType().equals(grandParent)) {
+                double newBalance = account.getAccBalance() + amount;
+                account.setAccBalance(newBalance);
                 TransactionDAO.updateAccBalance(account);
                 System.out.println("Account balance updated: " + account.getAccBalance());
                 break;
             }
         }
+        updateTreeViewAmounts();
+    }
 
+    private void updateTreeViewAmounts() {
+        for (TreeItem<String> assetItem : rootItem.getChildren().get(1).getChildren()) {
+            for (TreeItem<String> accountItem : assetItem.getChildren()) {
+                String subtypeItem = assetItem.getValue();
+                for (Account h : TransactionDAO.getAssetLiabilityTypes()) {
+                    String accountName = accountItem.getValue().split(" → ")[0];
+                    if (accountName.equals(h.getName()) && subtypeItem.equals(h.getSubType()) && "Asset".equals(h.getType())) {
+                        System.out.println(h.getAccBalance());
+                        accountItem.setValue(accountName + " → " + NumberFormat.getCurrencyInstance().format(h.getAccBalance()));
+                    }
+                }
+
+            }
+        }
+        for (TreeItem<String> liabilityItem : rootItem.getChildren().get(2).getChildren()) {
+            for (TreeItem<String> accountItem : liabilityItem.getChildren()) {
+                for (Account g : TransactionDAO.getAssetLiabilityTypes()) {
+                    String accountName = accountItem.getValue().split(" → ")[0];
+                    accountItem.setValue(accountName + " → " + NumberFormat.getCurrencyInstance().format(g.getAccBalance()));
+                }
+            }
+        }
     }
 
     private String getFullPath(TreeItem<String> item) {
@@ -720,8 +872,11 @@ public class TransactionController {
             fullPath.insert(0, parent.getValue() + " → ");
             parent = parent.getParent();
         }
+        //If the element selected is a specific account, remove the amount listed
+        //parseDouble throws an exception if a double is not found, so surround with a try/catch block
         return fullPath.toString();
     }
+
     private boolean checkDupes(String assetName) {
         //Check if a duplicate account with the same name and subtype already exists
         List<Account> assetLiabilityTypes = TransactionDAO.getAssetLiabilityTypes();

@@ -37,11 +37,16 @@ public class DatabaseManager {
                 "subType TEXT NOT NULL," +
                 "accBalance REAL NOT NULL" +
                 ");";
+        String createCategoriesTable = "CREATE TABLE IF NOT EXISTS categories (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "name TEXT NOT NULL" +
+                ");";
 
         try (Connection conn = connect();
              Statement stmt = conn.createStatement()) {
             stmt.execute(createTransactionsTable);
             stmt.execute(createAssetLiabilityTypesTable);
+            stmt.execute(createCategoriesTable);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

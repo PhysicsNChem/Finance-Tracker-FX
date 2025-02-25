@@ -3,17 +3,14 @@
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.ReportController">
-   <Text fx:id="netLabel" layoutX="236.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0" text=",  you've made 0.00 and spent 0.00, resulting in a net gain of 0.00" wrappingWidth="426.2581787109375" />
-   <Label fx:id="incomeLabel" layoutX="323.0" layoutY="224.0" prefHeight="18.0" prefWidth="41.0" text="0.00" />
-   <Label fx:id="expenseLabel" layoutX="405.0" layoutY="224.0" prefHeight="18.0" prefWidth="34.0" text="0.00" />
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.ReportController" stylesheets="@report-styles.css">
+   <Text fx:id="netLabel" layoutX="236.0" layoutY="116.0" strokeType="OUTSIDE" strokeWidth="0.0" text=",  you've made 0.00 and spent 0.00, resulting in a net gain of 0.00" wrappingWidth="720.0" />
    <Text layoutX="47.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Since" wrappingWidth="30.13671875" />
     <ToolBar layoutX="2.0" layoutY="7.0" prefHeight="40.0" prefWidth="1277.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
         <Button fx:id="home" onAction="#handleToolBarAction" text="Home" />

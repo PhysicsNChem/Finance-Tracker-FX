@@ -2,6 +2,7 @@ package com.app.demo;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -91,10 +92,14 @@ public class TransactionController {
         //disable the add transaction button if no account is selected
         addTransactionButton.disableProperty().bind(Bindings.createBooleanBinding(() ->
                         "Main view".equals(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue()) ||
+                                "Assets".equals(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue()) ||
+                                "Liabilities".equals(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getValue()) ||
                                 !assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem().getChildren().isEmpty(),
                 assetsLiabilitiesTreeView.getSelectionModel().selectedItemProperty()));
         //disable the transfer money button if fewer than two accounts exist (at least one asset and one liability)
-
+        TransferMoney.disableProperty().bind(Bindings.createBooleanBinding(() ->
+                        assetsLiabilitiesTreeView.getRoot().getChildren().size() < 2,
+                assetsLiabilitiesTreeView.getRoot().getChildren()));
 
 
         emptyLabel = new Label("No transactions available. Click or tap 'Help' for more information.");
@@ -132,17 +137,9 @@ public class TransactionController {
 
         totalBalanceLabel.textProperty().bind(Bindings.format("Total Balance: %s", Bindings.createStringBinding(() ->
                 NumberFormat.getCurrencyInstance().format(totalBalance.get()), totalBalance)));
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateFilter();
-        });
-
-        categoryFilterComboBox.setItems(categories);
-        categoryFilterComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            updateFilter();
-        });
 
 
-        initializeCategories();
+        activateListeners();
     }
 
     private void loadTransactionsFromDatabase() {
@@ -177,12 +174,14 @@ public class TransactionController {
         transactionsTable.refresh();
     }
 
-    @SuppressWarnings("unchecked")
+
     private void initializeTreeView() {
         rootItem = new TreeItem<>("Transactions");
         TreeItem<String> mainPageItem = new TreeItem<>("Main view");
         TreeItem<String> assetsItem = new TreeItem<>("Assets");
         TreeItem<String> liabilitiesItem = new TreeItem<>("Liabilities");
+
+
 
         // Group assets by subtype
         Map<String, List<Account>> assetsBySubtype = new HashMap<>();
@@ -231,8 +230,11 @@ public class TransactionController {
             if (newValue != null) {
                 handleTreeViewSelection(newValue);
                 viewLabel.setText(getFullPath(newValue));
+
+
             }
         });
+
     }
 
     //filtering by account
@@ -258,6 +260,7 @@ public class TransactionController {
                 transactionsTable.setItems(filteredTransactions);
             }
         }
+
     }
 
     @FXML
@@ -276,13 +279,13 @@ public class TransactionController {
             alert.setContentText("An illegal state occurred. Please check the FXML file in the source code.");
             alert.showAndWait();
         }
+
     }
 
     private void initializeCategories() {
-        String[] categoryNames = {"Food", "Transport", "Entertainment", "Salary", "Investments", "Dividend", "Other"};
+        String[] categoryNames = {"All categories", "Food", "Transport", "Entertainment", "Salary", "Investments", "Dividend", "Other"};
         for (String name : categoryNames) {
             categories.add(new Category(name));
-            TransactionDAO.insertCategory(new Category(name));
         }
     }
 
@@ -291,7 +294,7 @@ public class TransactionController {
             if (type.equals("Income")) {
                 return category.getName().equals("Salary") || category.getName().equals("Dividend") || category.getName().equals("Investments");
             } else if (type.equals("Expense")) {
-                return !category.getName().equals("Salary") && !category.getName().equals("Dividend") && !category.getName().equals("Investments");
+                return !category.getName().equals("Salary") && !category.getName().equals("Dividend") && !category.getName().equals("Investments") && !category.getName().equals("All categories");
             }
             return false;
         });
@@ -407,6 +410,7 @@ public class TransactionController {
         } else {
             System.out.println("Transaction addition canceled.");
         }
+
     }
 
 
@@ -492,6 +496,7 @@ public class TransactionController {
                 }
             }
         }
+
     }
 
     @FXML
@@ -505,6 +510,7 @@ public class TransactionController {
                 printerJob.endJob();
             }
         }
+
     }
 
     @FXML
@@ -573,6 +579,7 @@ public class TransactionController {
 
 
         }
+
     }
 
     @FXML
@@ -635,110 +642,122 @@ public class TransactionController {
                 alert.showAndWait();
             }
         }
+
     }
 
     @FXML
     private void onUpdateTransaction(ActionEvent event) {
         // Handle Update Transaction button click
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Update Transaction");
-        dialog.setHeaderText("Enter updated transaction details");
-        ButtonType addButtonType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
-        TextField amountField = new TextField(String.valueOf(Math.abs(amountColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()))));
-        amountField.setPromptText("Enter an amount here");
-        TextField payerField = new TextField(payerColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
-        payerField.setPromptText("Enter payer/recipient here");
-        ComboBox<String> incomeExpense = new ComboBox<>();
-        incomeExpense.getItems().addAll("Expense", "Income");
-        incomeExpense.setValue(incomeExpenseColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
-        ComboBox<Category> categoryComboBox = new ComboBox<>(filterCategories(incomeExpense.getValue()));
-        categoryComboBox.setValue(categoryColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
-        DatePicker datePicker = new DatePicker();
-        datePicker.setValue(LocalDate.parse(dateColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex())));
-        TextField descriptionField = new TextField(descriptionColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
-        //Set up user input dialog
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setMaxWidth(Double.MAX_VALUE);
-        grid.add(new Label("Update amount:"), 0, 0);
-        grid.add(amountField, 1, 0);
-        grid.add(new Label("Update payer/recipient:"), 0, 1);
-        grid.add(payerField, 1, 1);
-        grid.add(new Label("Update income/expense:"), 0, 2);
-        grid.add(incomeExpense, 1, 2);
-        grid.add(new Label("Update category:"), 0, 3);
-        grid.add(categoryComboBox, 1, 3);
-        grid.add(new Label("Update date:"), 0, 4);
-        grid.add(datePicker, 1, 4);
-        grid.add(new Label("Update memo (optional):"), 0, 5);
-        grid.add(descriptionField, 1, 5);
-        dialog.getDialogPane().setContent(grid);
-        Optional<ButtonType> result = dialog.showAndWait();
-        if (result.isPresent() && result.get() == addButtonType) {
-            try {
-                amount = Double.parseDouble(amountField.getText());
-                if (amount <= 0) {
+        Transaction transaction = transactionsTable.getSelectionModel().getSelectedItem();
+        if(!transaction.getCategory().getName().equals("Transfer")) {
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Update Transaction");
+            dialog.setHeaderText("Enter updated transaction details");
+            ButtonType addButtonType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+            TextField amountField = new TextField(String.valueOf(Math.abs(amountColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()))));
+            amountField.setPromptText("Enter an amount here");
+            TextField payerField = new TextField(payerColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
+            payerField.setPromptText("Enter payer/recipient here");
+            ComboBox<String> incomeExpense = new ComboBox<>();
+            incomeExpense.getItems().addAll("Expense", "Income");
+            incomeExpense.setValue(incomeExpenseColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
+            ComboBox<Category> categoryComboBox = new ComboBox<>(filterCategories(incomeExpense.getValue()));
+            categoryComboBox.setValue(categoryColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
+            DatePicker datePicker = new DatePicker();
+            datePicker.setValue(LocalDate.parse(dateColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex())));
+            TextField descriptionField = new TextField(descriptionColumn.getCellData(transactionsTable.getSelectionModel().getSelectedIndex()));
+            //Set up user input dialog
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setMaxWidth(Double.MAX_VALUE);
+            grid.add(new Label("Update amount:"), 0, 0);
+            grid.add(amountField, 1, 0);
+            grid.add(new Label("Update payer/recipient:"), 0, 1);
+            grid.add(payerField, 1, 1);
+            grid.add(new Label("Update income/expense:"), 0, 2);
+            grid.add(incomeExpense, 1, 2);
+            grid.add(new Label("Update category:"), 0, 3);
+            grid.add(categoryComboBox, 1, 3);
+            grid.add(new Label("Update date:"), 0, 4);
+            grid.add(datePicker, 1, 4);
+            grid.add(new Label("Update memo (optional):"), 0, 5);
+            grid.add(descriptionField, 1, 5);
+            dialog.getDialogPane().setContent(grid);
+            Optional<ButtonType> result = dialog.showAndWait();
+            if (result.isPresent() && result.get() == addButtonType) {
+                try {
+                    amount = Double.parseDouble(amountField.getText());
+                    if (amount <= 0) {
+                        System.out.println("Invalid amount entered");
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Error");
+                        alert.setContentText("Enter a non-zero value within the 64-bit limit, please.");
+                        alert.showAndWait();
+                        return;
+                    }
+                } catch (NumberFormatException e) {
                     System.out.println("Invalid amount entered");
                     Alert alert = new Alert(Alert.AlertType.WARNING);
                     alert.setTitle("Error");
-                    alert.setContentText("Enter a non-zero value within the 64-bit limit, please.");
+                    alert.setContentText("Enter only numbers in the amount field, please.");
                     alert.showAndWait();
                     return;
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid amount entered");
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Error");
-                alert.setContentText("Enter only numbers in the amount field, please.");
-                alert.showAndWait();
-                return;
-            }
-            memo = descriptionField.getText();
-            String incomeExpenseValue = incomeExpense.getValue();
-            String payerValue = payerField.getText();
-            date = datePicker.getValue().toString();
-            categoryValue = categoryComboBox.getValue();
-            if (categoryValue == null) {
-                System.out.println("Category not selected");
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Error");
-                alert.setContentText("Please select a category.");
-                alert.showAndWait();
-                return;
-            }
-            if ("Expense".equals(incomeExpenseValue)) {
-                amount = -amount; // Make the amount negative for expenses
-            }
-            Transaction transaction = transactionsTable.getSelectionModel().getSelectedItem();
-            updateTotalBalance(-transaction.getAmount());
-            transaction.setAmount(amount);
-            transaction.setCategory(categoryValue);
-            transaction.setIncomeExpense(incomeExpenseValue);
-            transaction.setPayer(payerValue);
-            transaction.setDate(date);
-            transaction.setDescription(memo);
-            updateTotalBalance(amount);
-            TransactionDAO.updateTransaction(transaction);
-
-            List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
-            for (Account acc : accounts) {
-                if (transaction.getSource().equals(acc.getName())) {
-                    updateAccBalance(acc.getName(), acc.getSubType(), acc.getType(), transaction.getAmount());
+                memo = descriptionField.getText();
+                String incomeExpenseValue = incomeExpense.getValue();
+                String payerValue = payerField.getText();
+                date = datePicker.getValue().toString();
+                categoryValue = categoryComboBox.getValue();
+                if (categoryValue == null) {
+                    System.out.println("Category not selected");
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Error");
+                    alert.setContentText("Please select a category.");
+                    alert.showAndWait();
+                    return;
                 }
+                if ("Expense".equals(incomeExpenseValue)) {
+                    amount = -amount; // Make the amount negative for expenses
+                }
+
+                //needed for updating account balance
+                double prevAmount = transaction.getAmount();
+                updateTotalBalance(-transaction.getAmount());
+                transaction.setAmount(amount);
+                transaction.setCategory(categoryValue);
+                transaction.setIncomeExpense(incomeExpenseValue);
+                transaction.setPayer(payerValue);
+                transaction.setDate(date);
+                transaction.setDescription(memo);
+                updateTotalBalance(amount);
+                TransactionDAO.updateTransaction(transaction);
+
+                List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
+                for (Account acc : accounts) {
+                    if (transaction.getSource().equals(acc.getName())) {
+                        updateAccBalance(acc.getName(), acc.getSubType(), acc.getType(), amount - prevAmount);
+                    }
+                }
+                System.out.println("Transaction updated: Amount = " + amount + ", Description = " + memo);
+                filteredTransactionList.setPredicate(filteredTransactionList.getPredicate());
+                transactionsTable.refresh();
+                List<Transaction> transactions = TransactionDAO.getTransactions();
+                for (Transaction t : transactions) {
+                    System.out.println(t.getDescription() + ": " + t.getAmount());
+                }
+            } else {
+                System.out.println("Transaction update canceled.");
             }
-            System.out.println("Transaction updated: Amount = " + amount + ", Description = " + memo);
-            filteredTransactionList.setPredicate(filteredTransactionList.getPredicate());
-            transactionsTable.refresh();
-            List<Transaction> transactions = TransactionDAO.getTransactions();
-            for (Transaction t : transactions) {
-                System.out.println(t.getDescription() + ": " + t.getAmount());
-            }
-        } else {
-            System.out.println("Transaction update canceled.");
+        } else{
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Error");
+            alert.setContentText("Transfers cannot be updated.");
+            alert.showAndWait();
         }
         System.out.println("Update Transaction button clicked");
+
     }
 
     @FXML
@@ -754,10 +773,53 @@ public class TransactionController {
         Optional<ButtonType> result = dialog.showAndWait();
         Transaction transaction = transactionsTable.getSelectionModel().getSelectedItem();
         //to get account attributes, match the String source with the account's name. The process is under the below conditional flow
-        List<Account> accounts = TransactionDAO.getAssetLiabilityTypes();
-        if (result.isPresent() && result.get() == removeButtonType) {
+        if (transaction.getCategory().getName().equals("Transfer")) {
+            Dialog<ButtonType> confirm = new Dialog<>();
+            confirm.setTitle("Confirm removal of transfer");
+            confirm.setHeaderText("This transaction is a transfer. Removing it will also remove the corresponding transfer transaction.\n Continue?");
+            ButtonType confirmButtonType = new ButtonType("Remove", ButtonBar.ButtonData.OK_DONE);
+            confirm.getDialogPane().getButtonTypes().addAll(confirmButtonType, ButtonType.CANCEL);
+            Optional<ButtonType> result2 = confirm.showAndWait();
+            if (result2.isPresent() && result2.get() == confirmButtonType) {
+                Transaction correspondingTransaction = null;
+                // Loop through the list to find the matching transfer.
+                for (Transaction t : transactionList) {
+                    if (t.equals(transaction)) {
+                        continue; // Skip the selected transaction itself.
+                    }
+                    // Check that both transactions are transfers and have opposite amounts.
+                    if (t.getCategory().getName().equals("Transfer") &&
+                            t.getAmount() == -transaction.getAmount()) {
+                        // Here we assume that for transfers, one transaction's source is the other’s payer.
+                        if (t.getPayer().equals(transaction.getSource()) &&
+                                t.getSource().equals(transaction.getPayer())) {
+                            correspondingTransaction = t;
+                            break;
+                        }
+                    }
+                }
+                // Remove the corresponding transaction if found.
+                if (correspondingTransaction != null) {
+                    TransactionDAO.deleteTransaction(correspondingTransaction);
+                    transactionList.remove(correspondingTransaction);
+
+                    // Remove the selected transaction.
+                    for (Account acc : TransactionDAO.getAssetLiabilityTypes()) {
+                        if (transaction.getSource().equals(acc.getName()) || correspondingTransaction.getSource().equals(acc.getName())) {
+                            updateAccBalance(acc.getName(), acc.getSubType(), acc.getType(), -transaction.getAmount());
+                            updateTreeViewAmounts();
+                        }
+                    }
+                }
+                TransactionDAO.deleteTransaction(transaction);
+                transactionList.remove(transaction);
+                // Refresh the table view.
+                handleTreeViewSelection(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem());
+            }
+        } else {
+            // Existing code for non-transfer transactions.
             transactionList.remove(transaction);
-            for (Account acc : accounts) {
+            for (Account acc : TransactionDAO.getAssetLiabilityTypes()) {
                 if (transaction.getSource().equals(acc.getName())) {
                     updateAccBalance(acc.getName(), acc.getSubType(), acc.getType(), -transaction.getAmount());
                     break;
@@ -765,11 +827,13 @@ public class TransactionController {
             }
             updateTotalBalance(-transaction.getAmount());
             TransactionDAO.deleteTransaction(transaction);
+            handleTreeViewSelection(assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem());
         }
-        System.out.println("Remove Transaction button clicked");
+
     }
 
-    @FXML
+
+        @FXML
     private void onRemoveAccount(ActionEvent event) {
         // Handle Remove Account button click
         TreeItem<String> selectedItem = assetsLiabilitiesTreeView.getSelectionModel().getSelectedItem();
@@ -853,17 +917,20 @@ public class TransactionController {
                 }
 
             }
+
         }
         for (TreeItem<String> liabilityItem : rootItem.getChildren().get(2).getChildren()) {
             for (TreeItem<String> accountItem : liabilityItem.getChildren()) {
+                String subtypeItem2 = liabilityItem.getValue();
                 for (Account g : TransactionDAO.getAssetLiabilityTypes()) {
-                    String accountName = accountItem.getValue().split(" → ")[0];
-                    accountItem.setValue(accountName + " → " + NumberFormat.getCurrencyInstance().format(g.getAccBalance()));
+                    String accountName2 = accountItem.getValue().split(" → ")[0];
+                    if (accountName2.equals(g.getName()) && subtypeItem2.equals(g.getSubType()) && "Liability".equals(g.getType())) {
+                        accountItem.setValue(accountName2 + " → " + NumberFormat.getCurrencyInstance().format(g.getAccBalance()));
+                    }
                 }
             }
         }
     }
-
     private String getFullPath(TreeItem<String> item) {
         //helper method to build out the path to be displayed on the transactions page
         StringBuffer fullPath = new StringBuffer(item.getValue());
@@ -920,7 +987,21 @@ public class TransactionController {
         tr.putString(transactionsTable.getSelectionModel().getSelectedItem().toString());
         clipboard.setContent(tr);
         System.out.println(transactionsTable.getSelectionModel().getSelectedItem().toString());
+
     }
+    @FXML
+    private void activateListeners() {
+        if(categories.isEmpty()){
+            initializeCategories();
+        }
+        searchField.textProperty().addListener(searchFieldListener);
+        categoryFilterComboBox.setItems(categories);
+        categoryFilterComboBox.valueProperty().addListener(categoryFilterListener);
+    }
+
+    // Define listeners as fields to reuse them
+    private final ChangeListener<String> searchFieldListener = (observable, oldValue, newValue) -> updateFilter();
+    private final ChangeListener<Category> categoryFilterListener = (observable, oldValue, newValue) -> updateFilter();
     @FXML
     private void handleToolBarAction(ActionEvent event){
         Button clickedButton = (Button) event.getSource();
@@ -946,6 +1027,7 @@ public class TransactionController {
                 }
             }
         }
+
     }
 
 

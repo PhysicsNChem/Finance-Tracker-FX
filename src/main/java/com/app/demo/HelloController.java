@@ -1,10 +1,12 @@
 package com.app.demo;
 
-import javafx.animation.FadeTransition;
+
+import javafx.animation.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.*;
 
@@ -13,6 +15,7 @@ import java.io.IOException;
 public class HelloController {
 
     public Tooltip helpToolTip;
+    public PieChart chart;
     private SceneSwitcher switcher;
 
 
@@ -22,15 +25,15 @@ public class HelloController {
     public void setSceneSwitcher(SceneSwitcher switcher) {
         this.switcher = switcher;
     }
-
-
     @FXML
-    private Label welcomeText;
+    public void initialize() {
 
-    @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+        // Create a fade transition for the help tooltip
+        //FadeTransition fadeTransition = new FadeTransition(javafx.util.Duration.seconds(2), helpToolTip);
+
     }
+
+
 
     public void onTransactionButtonClick(ActionEvent actionEvent) {
         try{

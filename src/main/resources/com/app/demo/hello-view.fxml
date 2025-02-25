@@ -14,7 +14,7 @@
    <ToolBar prefHeight="30.0" prefWidth="686.0">
      <items>
          <Region prefHeight="30.0" prefWidth="0.0" />
-          <Button onAction="#onHelloButtonClick" text="Home" />
+          <Button  text="Home" />
        <Button mnemonicParsing="false" onAction="#onReportButtonClick" text="Reports">
             <cursor>
                <Cursor fx:constant="HAND" />
@@ -36,7 +36,7 @@
          </Button>
      </items>
    </ToolBar>
-   <PieChart title="Your balance" />
+   <PieChart fx:id="chart" title="Your expenses" />
 
-          <Label fx:id="welcomeText" />
+
 </VBox>

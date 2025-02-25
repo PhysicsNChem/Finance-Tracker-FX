@@ -1,33 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.app.demo.HelpController"
-            prefHeight="1280.0" prefWidth="720.0">
-    <ToolBar layoutX="2.0" layoutY="7.0" prefHeight="40.0" prefWidth="1277.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-        <Button fx:id="home" onAction="#handleToolBarAction" text="Home" />
-        <Button fx:id="reports" mnemonicParsing="false" onAction="#handleToolBarAction" text="Reports">
-            <cursor>
-                <Cursor fx:constant="HAND" />
-            </cursor>
-        </Button>
-        <Button fx:id="transactions" mnemonicParsing="false"  onAction="#handleToolBarAction"   text="Transactions">
-            <cursor>
-                <Cursor fx:constant="HAND" />
-            </cursor>
-        </Button>
-        <Region prefHeight="30.0" prefWidth="200.0" />
-        <Region />
-        <Button mnemonicParsing="false" text="Help">
-            <tooltip>
-                <Tooltip text="Information on the use of FBLA Project" />
-            </tooltip></Button>
-    </ToolBar>
+<AnchorPane prefHeight="1280.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.HelpController" stylesheets="@help-styles.css">
+    <children>
+        <!-- Top Toolbar -->
+        <ToolBar layoutX="2.0" layoutY="7.0" prefHeight="40.0" prefWidth="1277.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <Button fx:id="home" onAction="#handleToolBarAction" text="Home" />
+            <Button fx:id="reports" mnemonicParsing="false" onAction="#handleToolBarAction" text="Reports">
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
+            <Button fx:id="transactions" mnemonicParsing="false" onAction="#handleToolBarAction" text="Transactions">
+                <cursor>
+                    <Cursor fx:constant="HAND" />
+                </cursor>
+            </Button>
+            <Region prefHeight="30.0" prefWidth="200.0" />
+            <Region />
+            <Button mnemonicParsing="false" text="Help">
+                <tooltip>
+                    <Tooltip text="Information on the use of FBLA Project" />
+                </tooltip>
+            </Button>
+        </ToolBar>
 
+        <!-- Interactive Q&A Section -->
+        <VBox layoutX="20.0" layoutY="60.0" spacing="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="60.0">
+            <Label prefHeight="27.0" prefWidth="570.0" style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Interactive Q and A- ask it about FBLA Project" />
+
+            <!-- Input area for questions -->
+            <TextArea fx:id="questionArea" prefHeight="100.0" promptText="Type your question here..." wrapText="true" />
+
+            <!-- Ask button triggers an event handler in the controller -->
+            <Button maxWidth="100.0" onAction="#handleAskAction" text="Ask" />
+
+            <!-- Display area for answers -->
+            <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Answer:" />
+            <TextArea fx:id="answerArea" editable="false" prefHeight="200.0" wrapText="true" />
+        </VBox>
+    </children>
 </AnchorPane>

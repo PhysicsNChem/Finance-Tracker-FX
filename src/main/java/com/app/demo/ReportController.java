@@ -15,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.util.StringConverter;
+import javafx.util.converter.LocalDateStringConverter;
 
 public class ReportController extends ComboBox<Object> {
     @FXML
@@ -25,10 +26,6 @@ public class ReportController extends ComboBox<Object> {
     public Button transactions;
     @FXML
     public ComboBox<Object> dateComboBox;
-    @FXML
-    public Label incomeLabel;
-    @FXML
-    public Label expenseLabel;
     @FXML
     public Button help;
     @FXML
@@ -58,6 +55,7 @@ public class ReportController extends ComboBox<Object> {
                 "three years ago",
                 CUSTOM_DATE
         );
+        dateComboBox.setValue(dateComboBox.getItems().getFirst());
         dateComboBox.setConverter(new StringConverter<Object>() {
             //Sets a StringConverter to handle dates appropriately
             @Override
@@ -125,18 +123,22 @@ public class ReportController extends ComboBox<Object> {
 
            }
         });
-        //binds the income and expense labels to the respective properties
+        //concatenate the income and expenses to the netLabel
         relIncome.set(compileIncome());
-        incomeLabel.textProperty().bind(Bindings.createStringBinding(() -> NumberFormat.getCurrencyInstance().format(relIncome.get()), relIncome));
         //As the expenses are negative, the absolute value is used
         relExpenses.set(Math.abs(compileExpenses()));
-        expenseLabel.textProperty().bind(Bindings.createStringBinding(() -> NumberFormat.getCurrencyInstance().format(relExpenses.get()), relExpenses));
-    }
+        if(relIncome.get() < relExpenses.get()){
+            netLabel.setText(",  you've made " +  NumberFormat.getCurrencyInstance().format(relIncome.get()) + " and spent " + NumberFormat.getCurrencyInstance().format(relExpenses.get()) + ", resulting in a net loss of " + NumberFormat.getCurrencyInstance().format(relExpenses.get()-relIncome.get()));
+        } else {
+            netLabel.setText(",  you've made " + NumberFormat.getCurrencyInstance().format(relIncome.get()) + " and spent " + NumberFormat.getCurrencyInstance().format(relExpenses.get()) + ", resulting in a net gain of " + NumberFormat.getCurrencyInstance().format(relIncome.get()-relExpenses.get()));
+        }
+      }
     public double compileIncome(){
         double happy = 0; //happy is the total income, it makes a greedy person happy
         for (Transaction transaction : TransactionDAO.getTransactions()) {
             if (transaction.getIncomeExpense().equals("Income")) {
                 happy += transaction.getAmount();
+
             }
         }
         return happy;

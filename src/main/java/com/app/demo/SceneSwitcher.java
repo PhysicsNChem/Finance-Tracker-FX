@@ -22,7 +22,7 @@ public class SceneSwitcher {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error loading scene: " + e.getMessage());
         }
     }
     public void preloadScene(String name, String fxmlFile) {
@@ -30,7 +30,7 @@ public class SceneSwitcher {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(fxmlFile)));
             scenes.put(name, new Scene(root));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error preloading scene: " + e.getMessage());
         }
     }
 

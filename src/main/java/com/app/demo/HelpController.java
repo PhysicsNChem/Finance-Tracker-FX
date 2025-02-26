@@ -9,6 +9,7 @@ public class HelpController {
     public TextArea questionArea;
     public TextArea answerArea;
     public Button transactions;
+    @FXML
     public Button reports;
     private SceneSwitcher switcher;
 
@@ -26,13 +27,13 @@ public class HelpController {
         String question = questionArea.getText().trim().toLowerCase();
         answerArea.clear();
         //simple rules-based response system
-        if (question.contains("how") && question.contains("use") && question.contains("fbla") || question.contains("how") && question.contains("use") && question.contains("project")) {
-            answerArea.setText("To use FBLA Project, you can click on the Transactions button in the toolbar, then click either 'Add Asset' or 'Add Liability'. After that, you can click on the 'Add Transaction' button to add a transaction to the account.");
+        if (question.contains("how") && question.contains("use") && question.contains("finance") || question.contains("how") && question.contains("use") && question.contains("tracker")) {
+            answerArea.setText("To use Finance Tracker FX, you can click on the Transactions button in the toolbar, then click either 'Add Asset' or 'Add Liability'. After that, you can click on the 'Add Transaction' button to add a transaction to the account.");
         } else if (question.contains("how") && question.contains("add") && question.contains("transaction")) {
             answerArea.setText("To add a transaction, click on the Transactions button, then click on the Add Transaction button.");
-        } else if (question.contains("how") && question.contains("add") && (question.contains("asset") || question.contains("account"))) {
+        } else if (question.contains("how") && (question.contains("add") || question.contains("make") || question.contains("create")) && (question.contains("asset") || question.contains("account"))) {
             answerArea.setText("To add an asset, click on the Transactions button, then click on the Add Asset button.");
-        } else if (question.contains("how") && question.contains("add") && question.contains("liability")) {
+        } else if (question.contains("how") && (question.contains("add") || question.contains("make") || question.contains("create")) && question.contains("liability")) {
             answerArea.setText("To add a liability, click on the Transactions button, then click on the Add Liability button.");
         } else if (question.contains("how") && question.contains("generate") && question.contains("report")) {
             answerArea.setText("To generate a report, click on the Reports button, then select the date range you want to view.");

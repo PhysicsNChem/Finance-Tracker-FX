@@ -9,7 +9,7 @@ plugins {
 }
 
 group 'com.app'
-version '0.2.0'
+version '0.3.0'
 
 repositories {
     mavenCentral()
@@ -38,7 +38,7 @@ java {
 }
 
 javafx {
-    version = '23.0.1'
+    version = '23.0.2'
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.swing', 'javafx.media']
 }
 
@@ -79,10 +79,10 @@ shadowJar{
 jlink {
 
     // Set the name of the runtime image
-    imageName = 'FBLA Project'
+    imageName = 'Finance Tracker FX'
 
     launcher {
-        name = 'FBLA Project'
+        name = 'Finance Tracker FX'
     }
     //Merge non modular dependency into the modular package
     forceMerge 'sqlite-jdbc'

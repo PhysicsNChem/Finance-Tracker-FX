@@ -4,7 +4,6 @@ package com.app.demo;
 import com.dlsc.formsfx.model.structure.Field;
 import javafx.animation.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,8 +13,6 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.geometry.*;
-import javafx.stage.*;
 import javafx.util.*;
 
 import java.io.IOException;
@@ -52,12 +49,13 @@ public class HelloController {
                     for (PieChart.Data data : chartData) {
                         data.getNode();
                         if(data.getName().equals(t.getCategory().getName())){
-                            data.setPieValue(data.getPieValue() + t.getAmount());
+                            data.setPieValue(data.getPieValue() - t.getAmount());
                             categoryTotal += t.getAmount();
                         }
                     }
                 } else {
-                    chartData.add(new PieChart.Data(t.getCategory().getName(), t.getAmount()));
+                    //set amounts to negative as a workaround to a JavaFX bug where negative values are only represented in white
+                    chartData.add(new PieChart.Data(t.getCategory().getName(), -t.getAmount()));
                     categoryTotal += t.getAmount();
                 }
             }

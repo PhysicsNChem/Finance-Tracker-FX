@@ -28,7 +28,7 @@
         <Region />
       <Button fx:id="help" mnemonicParsing="false" onAction="#handleToolBarAction" text="Help">
          <tooltip>
-            <Tooltip text="Information on the use of FBLA Project" />
+            <Tooltip text="Information on the use of Finance Tracker FX" />
          </tooltip></Button>
     </ToolBar>
    <ComboBox fx:id="dateComboBox" layoutX="86.0" layoutY="100.0" prefWidth="150.0" />

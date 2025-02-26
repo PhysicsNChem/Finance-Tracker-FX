@@ -37,7 +37,7 @@ public class HelloApplication extends Application {
         FXMLLoader reportsLoader = new FXMLLoader(getClass().getResource("/com/app/demo/reports-page.fxml"));
         reportsLoader.load();
 
-        primaryStage.setTitle("FBLA Project");
+        primaryStage.setTitle("Finance Tracker FX");
 
 
 

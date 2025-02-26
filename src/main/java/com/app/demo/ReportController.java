@@ -190,6 +190,7 @@ public class ReportController extends ComboBox<Object> {
     }
     public double compileExpenses(String date){
         double sad = 0;//sad is the total expenses, it makes a sad person sad
+        //convert date into number in preparation for comparison
         switch(date){
             case("today") -> {
                 date = LocalDate.now().toString();

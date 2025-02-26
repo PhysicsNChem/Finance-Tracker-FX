@@ -111,7 +111,7 @@ public class TransactionController {
 
         loadTransactionsFromDatabase();
         totalBalance.set(TransactionDAO.getTotalBalance());
-        amountColumn.setCellFactory(column -> new TableCell<Transaction, Double>() {
+        amountColumn.setCellFactory(column -> new TableCell<>() {
             private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
             @Override
@@ -224,9 +224,13 @@ public class TransactionController {
         assetsLiabilitiesTreeView.setShowRoot(false);
         assetsLiabilitiesTreeView.getSelectionModel().select(mainPageItem);
 
+        Pane searchContainer = (Pane) searchField.getParent();
         assetsLiabilitiesTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            //there is a nasty bug within JavaFX where adding listeners to TreeView (where that is necessary due to the nature of the data) causes the search field and category box to not work
+            //as a result, the entire scene needs to be reloaded
             if (newValue != null) {
                 handleTreeViewSelection(newValue);
+                //update the view label
                 viewLabel.setText(getFullPath(newValue));
 
 
@@ -281,7 +285,7 @@ public class TransactionController {
     }
 
     private void initializeCategories() {
-        String[] categoryNames = {"All categories", "Food", "Transport", "Entertainment", "Salary", "Investments", "Dividend", "Other"};
+        String[] categoryNames = {"All categories", "Rent", "Food", "Transport", "Entertainment", "Salary", "Investments", "Dividend", "Other"};
         for (String name : categoryNames) {
             categories.add(new Category(name));
         }
@@ -337,9 +341,7 @@ public class TransactionController {
         grid.add(new Label("Memo (optional):"), 0, 5);
         grid.add(descriptionField, 1, 5);
 
-        incomeExpense.valueProperty().addListener((observable, oldValue, newValue) -> {
-            categoryComboBox.setItems(filterCategories(newValue));
-        });
+        incomeExpense.valueProperty().addListener((observable, oldValue, newValue) -> categoryComboBox.setItems(filterCategories(newValue)));
 
         dialog.getDialogPane().setContent(grid);
         Platform.runLater(amountField::requestFocus);

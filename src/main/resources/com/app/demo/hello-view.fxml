@@ -32,7 +32,7 @@
          <Region prefHeight="30.0" prefWidth="160.0" />
          <Button contentDisplay="CENTER" mnemonicParsing="false" onAction="#onHelpButtonClick" text="Help">
             <tooltip>
-               <Tooltip fx:id="helpToolTip" text="Information on the use of FBLA Project" />
+               <Tooltip fx:id="helpToolTip" text="Information on the use of Finance Tracker FX" />
             </tooltip>
          </Button>
      </items>

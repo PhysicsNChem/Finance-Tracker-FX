@@ -7,14 +7,15 @@
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="496.0" prefWidth="1280.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.HelloController" stylesheets="@hello-styles.css">
+<VBox alignment="CENTER" prefHeight="496.0" prefWidth="1280.0" spacing="20.0" stylesheets="@hello-styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.demo.HelloController">
    <ToolBar prefHeight="30.0" prefWidth="686.0">
      <items>
          <Region prefHeight="30.0" prefWidth="0.0" />
-          <Button  text="Home" />
+          <Button text="Home" />
        <Button mnemonicParsing="false" onAction="#onReportButtonClick" text="Reports">
             <cursor>
                <Cursor fx:constant="HAND" />
@@ -36,7 +37,10 @@
          </Button>
      </items>
    </ToolBar>
-   <PieChart fx:id="chart" title="Your expenses" />
+    <StackPane prefHeight="570.0" prefWidth="800.0">
+        <Label fx:id="placeHolderLabel" text="No data available"/>
+        <PieChart fx:id="chart" title="Your expenses"/>
+    </StackPane>
 
 
 </VBox>

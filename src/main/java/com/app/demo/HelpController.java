@@ -9,6 +9,7 @@ public class HelpController {
     public TextArea questionArea;
     public TextArea answerArea;
     public Button transactions;
+    public Button reports;
     private SceneSwitcher switcher;
 
     @FXML

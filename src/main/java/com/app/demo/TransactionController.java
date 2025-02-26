@@ -29,8 +29,6 @@ public class TransactionController {
     public Button TransferMoney;
     private Category categoryValue;
     @FXML
-    private Label emptyLabel;
-    @FXML
     private TextField searchField;
     @FXML
     private Label viewLabel;
@@ -102,7 +100,7 @@ public class TransactionController {
                 assetsLiabilitiesTreeView.getRoot().getChildren()));
 
 
-        emptyLabel = new Label("No transactions available. Click or tap 'Help' for more information.");
+        Label emptyLabel = new Label("No transactions available. Click or tap 'Help' for more information.");
         sourceColumn.setCellValueFactory(new PropertyValueFactory<>("source"));
         incomeExpenseColumn.setCellValueFactory(new PropertyValueFactory<>("incomeExpense"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));

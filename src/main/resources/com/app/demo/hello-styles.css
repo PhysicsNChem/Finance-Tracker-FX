@@ -1,3 +1,29 @@
 .tool-bar {
     -fx-background-color: transparent;
 }
+.pie-chart {
+    .default-color0.chart-pie {
+        -fx-pie-color: #f3622d !important;
+    }
+    .default-color1.chart-pie {
+        -fx-pie-color: #fba71b !important;
+    }
+    .default-color2.chart-pie {
+        -fx-pie-color: #57b757 !important;
+    }
+    .default-color3.chart-pie {
+        -fx-pie-color: #41a9c9 !important;
+    }
+    .default-color4.chart-pie {
+        -fx-pie-color: #4258c9 !important;
+    }
+    .default-color5.chart-pie {
+        -fx-pie-color: #9a42c8 !important;
+    }
+    .default-color6.chart-pie {
+        -fx-pie-color: #c84164 !important;
+    }
+    .default-color7.chart-pie {
+        -fx-pie-color: #088888 !important;
+    }
+}

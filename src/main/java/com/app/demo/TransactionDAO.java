@@ -74,24 +74,19 @@ public class TransactionDAO {
             pstmt.setString(4, transaction.getCategory().getName());
             pstmt.setString(5, transaction.getIncomeExpense());
             pstmt.setString(6, transaction.getPayer());
-            pstmt.setString(7, transaction.getDate());
-            pstmt.setString(8, transaction.getDescription());
-            pstmt.setDouble(9, transaction.getAmount());
-            pstmt.setString(10, transaction.getCategory().getName());
-            pstmt.setString(11, transaction.getIncomeExpense());
-            pstmt.setString(12, transaction.getPayer());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
     public static void insertAssetLiabilityType(Account account){
-        String sql = "INSERT INTO asset_liability_types(name, type, subType) VALUES(?,?,?)";
+        String sql = "INSERT INTO asset_liability_types(name, type, subType, accBalance) VALUES(?,?,?,?)";
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, account.getName());
             pstmt.setString(2, account.getType());
             pstmt.setString(3, account.getSubType());
+            pstmt.setDouble(4, account.getAccBalance());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -105,7 +100,7 @@ public class TransactionDAO {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Account account = new Account(rs.getString("name"), rs.getString("type"), rs.getString("subType"));
+                Account account = new Account(rs.getString("name"), rs.getString("type"), rs.getString("subType"), rs.getDouble("accBalance"));
                 assetLiabilityTypes.add(account);
             }
         } catch (SQLException e) {
@@ -114,9 +109,52 @@ public class TransactionDAO {
         return assetLiabilityTypes;
     }
     public static void deleteAssetLiabilityType(Account account){
-        String sql = "DELETE FROM asset_liability_types WHERE name = ? AND type = ?";
+        String sql = "DELETE FROM asset_liability_types WHERE name = ? AND type = ? AND subType = ? AND accBalance = ?";
         try (Connection conn = DatabaseManager.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, account.getName());
+            pstmt.setString(2, account.getType());
+            pstmt.setString(3, account.getSubType());
+            pstmt.setDouble(4, account.getAccBalance());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public static void insertCategory(Category category){
+        String sql = "INSERT INTO categories(name) VALUES(?)";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, category.getName());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public static List<Category> getCategories(){
+        List<Category> categories = new ArrayList<>();
+        String sql = "SELECT * FROM categories";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Category category = new Category(rs.getString("name"));
+                categories.add(category);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return categories;
+    }
+    public static void updateAccBalance(Account account) {
+        String sql = "UPDATE asset_liability_types SET accBalance = ? WHERE name = ? AND type = ? AND subType = ?";
+        try (Connection conn = DatabaseManager.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDouble(1, account.getAccBalance());
+            pstmt.setString(2, account.getName());
+            pstmt.setString(3, account.getType());
+            pstmt.setString(4, account.getSubType());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());

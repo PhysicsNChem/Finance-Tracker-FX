@@ -2,6 +2,7 @@ package com.app.demo;
 
 public class Category {
     private String name;
+    private String incomeExpense;
 
     public Category(String name) {
         this.name = name;
